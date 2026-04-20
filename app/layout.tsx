@@ -18,6 +18,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
+  // --- NEW: DROPDOWN TOGGLE STATES ---
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
+
   // --- DYNAMIC BACKEND URL ---
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -46,6 +50,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     return () => window.removeEventListener('cartUpdate', loadCart);
   }, [pathname]);
 
+  // Close dropdowns when path changes
+  useEffect(() => {
+    setIsCartOpen(false);
+    setIsAccountOpen(false);
+  }, [pathname]);
+
   // --- GLOBAL SYNC CART TO MONGODB ---
   useEffect(() => {
     const syncCartToDB = async () => {
@@ -53,7 +63,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       if (!savedEmail || !mounted) return;
 
       try {
-        // --- UPDATED TO USE API_URL ---
         await fetch(`${API_URL}/api/auth/sync-cart`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -77,7 +86,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       if (!savedEmail) return;
 
       try {
-        // --- UPDATED TO USE API_URL ---
         const res = await fetch(`${API_URL}/api/auth/user-profile/${savedEmail}`);
         const data = await res.json();
         setUserData(data);
@@ -148,8 +156,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="fixed top-8 right-8 z-[130] flex items-center gap-3">
             
             {isAppPage && (
-              <div className="group relative">
-                <button className="h-10 w-10 rounded-full bg-white/60 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-slate-900 dark:text-[#b3ffe2] border border-black/5 dark:border-white/5 shadow-sm hover:scale-110 active:scale-95 transition-all duration-300 relative z-[140]">
+              <div 
+                className="group relative"
+                onMouseEnter={() => setIsCartOpen(true)}
+                onMouseLeave={() => setIsCartOpen(false)}
+              >
+                <button 
+                  onClick={() => setIsCartOpen(!isCartOpen)}
+                  className="h-10 w-10 rounded-full bg-white/60 dark:bg-black/40 backdrop-blur-md flex items-center justify-center text-slate-900 dark:text-[#b3ffe2] border border-black/5 dark:border-white/5 shadow-sm hover:scale-110 active:scale-95 transition-all duration-300 relative z-[140]"
+                >
                   <ShoppingCart size={18} />
                   {cartItems.length > 0 && (
                     <span className="absolute bottom-0 right-0 translate-x-1 translate-y-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-red-500 text-[6px] font-black text-white border border-white dark:border-black shadow-sm">
@@ -157,8 +172,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     </span>
                   )}
                 </button>
+
                 {/* --- CART DROPDOWN MENU --- */}
-                <div className="absolute right-0 top-full pt-4 w-64 opacity-0 invisible translate-y-4 pointer-events-none group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] z-[150]">
+                <div className={`absolute right-0 top-full pt-4 w-64 transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] z-[150] ${isCartOpen ? 'opacity-100 visible translate-y-0 pointer-events-auto' : 'opacity-0 invisible translate-y-4 pointer-events-none'}`}>
                   <div className="bg-white dark:bg-[#0a0a0a] backdrop-blur-3xl border border-black/10 dark:border-[#b3ffe2]/20 rounded-[2rem] shadow-2xl overflow-hidden py-3">
                     <div className="px-6 py-4 border-b border-black/5 dark:border-white/5 mb-2 bg-slate-50 dark:bg-[#b3ffe2]/5">
                       <p className="text-[9px] font-black text-teal-600 dark:text-[#b3ffe2] uppercase tracking-[0.2em]">Cart</p>
@@ -187,6 +203,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                               <button 
                                 onClick={(e) => {
                                   e.preventDefault();
+                                  e.stopPropagation();
                                   removeFromCart(item.id);
                                 }} 
                                 className="absolute right-3 p-2 text-black dark:text-white hover:!text-red-500 transition-all z-20 outline-none"
@@ -207,7 +224,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                       </div>
                     )}
                   </div>
-                </div>             
+                </div>              
               </div>
             )}
 
@@ -216,12 +233,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
 
             {isAppPage && (
-              <div className="group relative">
-                <button className="h-10 w-10 rounded-full bg-slate-900 dark:bg-[#b3ffe2] flex items-center justify-center text-white dark:text-black border-2 border-white dark:border-black shadow-lg hover:scale-110 active:scale-95 transition-all duration-300 relative z-[140]">
+              <div 
+                className="group relative"
+                onMouseEnter={() => setIsAccountOpen(true)}
+                onMouseLeave={() => setIsAccountOpen(false)}
+              >
+                <button 
+                  onClick={() => setIsAccountOpen(!isAccountOpen)}
+                  className="h-10 w-10 rounded-full bg-slate-900 dark:bg-[#b3ffe2] flex items-center justify-center text-white dark:text-black border-2 border-white dark:border-black shadow-lg hover:scale-110 active:scale-95 transition-all duration-300 relative z-[140]"
+                >
                   <User size={18} strokeWidth={2.5} />
                 </button>
                 
-                <div className="absolute right-0 top-full pt-4 w-64 opacity-0 invisible translate-y-4 pointer-events-none group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] z-[150]">
+                <div className={`absolute right-0 top-full pt-4 w-64 transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] z-[150] ${isAccountOpen ? 'opacity-100 visible translate-y-0 pointer-events-auto' : 'opacity-0 invisible translate-y-4 pointer-events-none'}`}>
                   <div className="bg-white dark:bg-[#0a0a0a] backdrop-blur-3xl border border-black/10 dark:border-[#b3ffe2]/20 rounded-[2.5rem] shadow-2xl overflow-hidden py-3">
                     <div className="px-6 py-5 border-b border-black/5 dark:border-white/5 mb-2 bg-slate-50 dark:bg-[#b3ffe2]/5">
                       <p className="text-[9px] font-black text-teal-600 dark:text-[#b3ffe2] uppercase tracking-[0.2em] mb-1">
