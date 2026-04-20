@@ -26,7 +26,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        // --- UPDATED TO USE API_URL ---
         const res = await fetch(`${API_URL}/api/recs/product/${productId}`);
         if (res.ok) {
           const data = await res.json();
@@ -41,7 +40,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     fetchProduct();
   }, [productId, API_URL]); 
 
-  // --- UPDATED: ADD TO CART WITH MONGODB SYNC ---
   const handleAddToCart = async () => {
     if (!product) return;
 
@@ -63,7 +61,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     const updatedCart = [...currentCart, productToAdd];
     localStorage.setItem(cartKey, JSON.stringify(updatedCart));
 
-    // --- UPDATED: SYNC TO MONGODB ATLAS WITH API_URL ---
     if (userEmail) {
       try {
         await fetch(`${API_URL}/api/auth/sync-cart`, {
@@ -83,7 +80,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     alert("Product synced with Neural Cart.");
   };
 
-  // --- UPDATED: BUY NOW (Direct to Checkout) ---
   const handleBuyNow = async () => {
     if (!userEmail) {
       alert("Authentication required. Please sign in to establish a connection.");
@@ -105,7 +101,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       updatedCart = [...currentCart, productToAdd];
       localStorage.setItem(cartKey, JSON.stringify(updatedCart));
       
-      // --- UPDATED: SYNC TO MONGODB ATLAS WITH API_URL ---
       try {
         await fetch(`${API_URL}/api/auth/sync-cart`, {
           method: 'POST',
@@ -154,10 +149,11 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         <span className="tracking-tight">Back</span>
       </button>
 
-      <div className="grid grid-cols-2 md:grid-cols-12 gap-10 lg:gap-16 items-start">
+      {/* PARENT GRID: items-start ensures the left column doesn't stretch to full height */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-10 lg:gap-16 items-start relative">
         
-        <div className="md:col-span-5 md:col-span-4 w-full sticky top-32">
-          
+        {/* LEFT COLUMN: STICKY CONTAINER */}
+        <div className="md:col-span-5 lg:col-span-4 w-full md:sticky md:top-32 self-start z-10">
           <div className="relative w-full max-w-[400px] h-[350px] rounded-[2rem] bg-white dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/10 flex items-center justify-center overflow-hidden shadow-xl group p-6">
             
             <img 
@@ -175,7 +171,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           </div>
         </div>
 
-        <div className="md:col-span-7 lg:col-span-8 w-full flex flex-col space-y-6 pt-2">
+        {/* RIGHT COLUMN: SCROLLING CONTENT */}
+        <div className="md:col-span-7 lg:col-span-8 w-full flex flex-col space-y-6 pt-2 relative z-0">
           
           <div className="space-y-3 border-b border-slate-200 dark:border-white/10 pb-6">
             <h1 className="text-lg md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight max-w-2xl">
@@ -209,7 +206,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
-              
               <button 
                 onClick={handleAddToCart}
                 className="flex-1 py-3.5 px-5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/10 dark:hover:border-white/30 dark:hover:bg-[#000000] text-slate-900 dark:text-white font-black text-[10px] uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 shadow-sm hover:shadow-md hover:-translate-y-1 group active:translate-y-0"
@@ -226,9 +222,11 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 {isProcessing ? 'Processing...' : 'Buy Now'} 
                 {!isProcessing && <Zap size={14} fill="currentColor" className="group-hover:scale-125 group-hover:rotate-12 transition-transform duration-300" />}
               </button>
-
             </div>
           </div>
+
+          {/* SPACING FOR SCROLL TEST */}
+          <div className="h-[500px]"></div>
 
         </div>
       </div>
