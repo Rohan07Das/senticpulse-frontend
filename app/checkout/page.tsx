@@ -248,7 +248,7 @@ export default function CheckoutPage() {
                     </div>
                     <button 
                       onClick={() => removeItem(item.id)}
-                      className="absolute right-8 p-2 text-black dark:text-white hover:text-red-500 transition-all z-30"
+                      className="absolute right-8 p-2 text-black dark:text-white hover:!text-red-500 transition-all z-30"
                     >
                       <Trash2 size={18} />
                     </button>
