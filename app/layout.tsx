@@ -18,7 +18,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
-  // --- NEW: DROPDOWN TOGGLE STATES ---
+  // --- NEW: TOAST NOTIFICATION STATE ---
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+
+  // --- DROPDOWN TOGGLE STATES ---
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
 
@@ -44,10 +48,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       }
     };
 
+    // --- LISTENER FOR CUSTOM TOAST EVENT ---
+    const handleToast = (e: any) => {
+      setToastMessage(e.detail.message);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    };
+
     loadCart();
 
     window.addEventListener('cartUpdate', loadCart);
-    return () => window.removeEventListener('cartUpdate', loadCart);
+    window.addEventListener('show-toast', handleToast);
+    
+    return () => {
+      window.removeEventListener('cartUpdate', loadCart);
+      window.removeEventListener('show-toast', handleToast);
+    };
   }, [pathname]);
 
   // Close dropdowns when path changes
@@ -155,6 +171,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
           <div className="fixed top-8 right-8 z-[130] flex items-center gap-3">
             
+            {/* --- UPDATED: FLOATING NOTIFICATION BOX --- */}
+{showToast && (
+  <div className="animate-in fade-in slide-in-from-right-4 duration-500 
+    /* Light Mode Styles: Solid White with Slate Border */
+    bg-white border-slate-200 text-slate-900 
+    /* Dark Mode Styles: Blur with Mint Border */
+    dark:bg-white/10 dark:backdrop-blur-xl dark:border-[#b3ffe2]/30 dark:text-[#b3ffe2]
+    px-5 py-2.5 rounded-2xl shadow-xl dark:shadow-[0_0_30px_rgba(179,255,226,0.1)] mr-1"
+  >
+    <p className="text-[9px] font-black uppercase tracking-[0.15em]">
+      {toastMessage}
+    </p>
+  </div>
+)}
+
             {isAppPage && (
               <div 
                 className="group relative"

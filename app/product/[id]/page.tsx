@@ -47,7 +47,10 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
     const currentCart = JSON.parse(localStorage.getItem(cartKey) || '[]');
     
     if (currentCart.find((item: any) => item.id === productId)) {
-      alert("Neural sync active: Item already in Shipment Queue.");
+      // --- TRIGGER TOAST INSTEAD OF ALERT ---
+      window.dispatchEvent(new CustomEvent('show-toast', { 
+        detail: { message: "Item already in Queue" } 
+      }));
       return;
     }
 
@@ -76,8 +79,13 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       }
     }
 
+    // Update the cart icon number
     window.dispatchEvent(new Event('cartUpdate'));
-    alert("Product synced with Neural Cart.");
+    
+    // --- TRIGGER SUCCESS TOAST ---
+    window.dispatchEvent(new CustomEvent('show-toast', { 
+      detail: { message: "Product Added to Cart" } 
+    }));
   };
 
   const handleBuyNow = async () => {
@@ -149,10 +157,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         <span className="tracking-tight">Back</span>
       </button>
 
-      {/* PARENT GRID: items-start ensures the left column doesn't stretch to full height */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-10 lg:gap-16 items-start relative">
+      <div className="grid grid-cols-2 md:grid-cols-12 gap-10 lg:gap-16 items-start relative">
         
-        {/* LEFT COLUMN: STICKY CONTAINER */}
         <div className="md:col-span-5 lg:col-span-4 w-full md:sticky md:top-32 self-start z-10">
           <div className="relative w-full max-w-[400px] h-[350px] rounded-[2rem] bg-white dark:bg-[#0a0a0a] border border-slate-200 dark:border-white/10 flex items-center justify-center overflow-hidden shadow-xl group p-6">
             
@@ -171,7 +177,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           </div>
         </div>
 
-        {/* RIGHT COLUMN: SCROLLING CONTENT */}
         <div className="md:col-span-7 lg:col-span-8 w-full flex flex-col space-y-6 pt-2 relative z-0">
           
           <div className="space-y-3 border-b border-slate-200 dark:border-white/10 pb-6">
@@ -225,7 +230,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
             </div>
           </div>
 
-          {/* SPACING FOR SCROLL TEST */}
           <div className="h-[500px]"></div>
 
         </div>
