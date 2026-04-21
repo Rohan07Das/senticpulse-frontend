@@ -35,6 +35,9 @@ export default function DashboardPage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  
+  // NEW: Dynamic Metric State
+  const [neuralLoad, setNeuralLoad] = useState("42ms");
 
   const allCategories = useMemo(() => [
     "Air Conditioners", "All Appliances", "All Car and Motorbike Products", "All Electronics", 
@@ -69,30 +72,26 @@ export default function DashboardPage() {
       .slice(0, 5);
   }, [catSearch, allCategories]);
 
+  // UPDATED: metrics now depends on neuralLoad state
   const metrics = useMemo(() => [
     { label: "Sentiment", value: "88%", color: "text-teal-600 dark:text-[#b3ffe2]", icon: <TrendingUp className="w-4 h-4"/> },
     { label: "Trust Index", value: "94.2%", color: "text-emerald-600 dark:text-[#34A853]", icon: <ShieldCheck className="w-4 h-4"/> },
     { label: "Anomalies", value: "0.02%", color: "text-red-600 dark:text-[#EA4335]", icon: <AlertCircle className="w-4 h-4"/> },
-    { label: "Neural Load", value: "42ms", color: "text-slate-900 dark:text-white", icon: <Zap className="w-4 h-4 text-slate-400"/> },
-  ], []);
+    { label: "Neural Load", value: neuralLoad, color: "text-slate-900 dark:text-white", icon: <Zap className="w-4 h-4 text-slate-400"/> },
+  ], [neuralLoad]);
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
     localStorage.setItem('sentic_last_category', category);
-    // Persist search query and category in session storage for back-navigation
     sessionStorage.setItem('dash_session_cat', category);
   };
 
   useEffect(() => { 
     setMounted(true); 
-    
-    // Check if we have session-stored data to prevent random shuffle on "Back"
     const sessionCat = sessionStorage.getItem('dash_session_cat');
     const sessionQuery = sessionStorage.getItem('dash_session_query');
-    
     if (sessionCat) setSelectedCategory(sessionCat);
     if (sessionQuery) setSearchQuery(sessionQuery);
-
     const savedCategory = localStorage.getItem('sentic_last_category');
     if (savedCategory && !sessionCat) {
       setSelectedCategory(savedCategory);
@@ -102,13 +101,12 @@ export default function DashboardPage() {
   // --- DISCOVERY LOGIC: FETCH RANDOM CONTENT ---
   const loadData = async (query = "", page = 1) => {
     setIsLoading(true);
+    // Start measuring time
+    const startTime = performance.now();
+    
     try {
-      // PERSISTENCE: Save current search to session storage
       sessionStorage.setItem('dash_session_query', query);
       sessionStorage.setItem('dash_session_cat', selectedCategory);
-
-      // We only shuffle if it's a REAL refresh (no session storage markers)
-      // or if the user is explicitly on "All" and hasn't searched.
       const isDiscovery = query.length === 0 && selectedCategory === "All" && !sessionStorage.getItem('is_returning');
       
       let finalCategory = selectedCategory;
@@ -126,16 +124,20 @@ export default function DashboardPage() {
       const res = await fetch(url);
       const data = await res.json();
       
-      // Only shuffle for Discovery Mode. If query exists or category is specific, show actual results.
       const shuffled = isDiscovery ? (data.results || []).sort(() => 0.5 - Math.random()) : (data.results || []);
       
       setAiProducts(shuffled);
       setTotalPages(data.total_pages || 1);
-      
-      // Mark session as "active" so clicking back doesn't re-shuffle
       sessionStorage.setItem('is_returning', 'true');
+
+      // Calculate Real Neural Load (Client-side fetch speed + slight random offset for realism)
+      const endTime = performance.now();
+      const serverTime = data.execution_time || (endTime - startTime);
+      setNeuralLoad(`${Math.floor(serverTime + (Math.random() * 5))}ms`);
+
     } catch (e) { 
       console.error(e); 
+      setNeuralLoad("Error");
     } finally { 
       setIsLoading(false); 
     }
@@ -143,14 +145,12 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (mounted) {
-      // Detect browser reload to clear the "returning" marker and force shuffle
       const navType = window.performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
       if (navType && navType.type === 'reload') {
           sessionStorage.removeItem('is_returning');
           sessionStorage.removeItem('dash_session_query');
           sessionStorage.removeItem('dash_session_cat');
       }
-      
       loadData(searchQuery, 1);
     }
   }, [selectedCategory, priceRange, mounted]);
@@ -164,13 +164,10 @@ export default function DashboardPage() {
       <div className="relative z-10 flex flex-col min-h-screen">
         <div className="flex flex-1 relative bg-transparent">
           
-          {/* SIDEBAR */}
           <aside className="hidden lg:flex flex-col w-72 border-r border-slate-200 dark:border-white/5 p-8 sticky top-0 h-screen z-20 bg-transparent overflow-y-auto">
             <div className="space-y-8 mt-4">
-              
               <div className="space-y-4 relative"> 
                 <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Find Category</h3>
-                
                 <div className="relative group">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none group-focus-within:text-[#b3ffe2] transition-colors" />
                   <input 
@@ -182,7 +179,6 @@ export default function DashboardPage() {
                     className="w-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-full py-2.5 pl-12 pr-4 text-xs focus:border-[#b3ffe2] outline-none transition-all hover:bg-slate-200/50 dark:hover:bg-white/10 hover:shadow-lg hover:shadow-teal-500/10 focus:shadow-xl focus:shadow-teal-500/20"
                   />
                 </div>
-
                 {filteredSuggestions.length > 0 && (
                   <div className="absolute left-0 right-0 top-full mt-2 z-[100] bg-white dark:bg-[#111] border border-slate-200 dark:border-white/10 rounded-xl shadow-2xl max-h-40 overflow-y-auto">
                     {filteredSuggestions.map((s) => (
@@ -220,7 +216,6 @@ export default function DashboardPage() {
 
           <main className="flex-1 bg-transparent z-10 min-h-screen">
             <div className="max-w-[1200px] mx-auto p-8 space-y-8">
-              
               <div className="flex justify-between items-center py-4 sticky top-0 z-50 bg-transparent backdrop-blur-sm">
                   <div className="relative w-full max-w-xl group">
                       <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 z-10 group-focus-within:text-[#b3ffe2] transition-colors" />
