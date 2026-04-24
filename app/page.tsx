@@ -105,9 +105,27 @@ export default function HomePage() {
       </div>
 
       {/* --- PRODUCT PEEK WITH IMAGE CAROUSEL --- */}
-      <div className="relative z-20 w-full max-w-5xl mx-auto px-6 -mt-32 md:-mt-48 pb-12">
+      {/* Increased max-width and added side padding (px-12 lg:px-24) to create room for the arrows */}
+      <div className="relative z-20 w-full max-w-6xl mx-auto px-12 lg:px-24 -mt-32 md:-mt-48 pb-12">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[50%] bg-teal-400 dark:bg-[#b3ffe2] opacity-[0.03] dark:opacity-[0.08] blur-[100px] rounded-full pointer-events-none"></div>
         
+        {/* Navigation Arrows - MOVED COMPLETELY OUTSIDE THE BROWSER WINDOW */}
+        <button 
+          onClick={prevImage} 
+          className="absolute left-2 lg:left-6 top-1/2 -translate-y-1/2 p-3 rounded-full bg-slate-900 hover:bg-black border border-slate-700 shadow-2xl text-white transition-all z-50 cursor-pointer flex items-center justify-center"
+          aria-label="Previous Image"
+        >
+          <ChevronLeft className="w-6 h-6" />
+        </button>
+        
+        <button 
+          onClick={nextImage} 
+          className="absolute right-2 lg:right-6 top-1/2 -translate-y-1/2 p-3 rounded-full bg-slate-900 hover:bg-black border border-slate-700 shadow-2xl text-white transition-all z-50 cursor-pointer flex items-center justify-center"
+          aria-label="Next Image"
+        >
+          <ChevronRight className="w-6 h-6" />
+        </button>
+
         {/* Main Mock Browser Window */}
         <div className="relative w-full aspect-[16/9] bg-white dark:bg-slate-950/80 backdrop-blur-2xl border border-slate-200 dark:border-white/10 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col group">
           
@@ -122,7 +140,6 @@ export default function HomePage() {
           
           {/* CAROUSEL BODY */}
           <div className="flex-1 relative w-full h-full bg-slate-100 dark:bg-slate-900">
-            
             {/* The sliding track */}
             <div 
               className="absolute inset-0 w-full h-full flex transition-transform duration-700 ease-out" 
@@ -133,47 +150,28 @@ export default function HomePage() {
                   <img 
                     src={src} 
                     alt={`Dashboard View ${index + 1}`} 
-                    className="w-full h-full object-cover object-center"
+                    className="w-full h-full object-cover object-top"
                   />
                 </div>
               ))}
             </div>
-
-            {/* Navigation Arrows - Left Side (Strictly Positioned) */}
-            <button 
-              onClick={prevImage} 
-              className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-slate-900/80 hover:bg-black backdrop-blur-md border border-white/20 shadow-2xl text-white transition-all z-50 cursor-pointer flex items-center justify-center"
-              aria-label="Previous Image"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-            
-            {/* Navigation Arrows - Right Side (Strictly Positioned) */}
-            <button 
-              onClick={nextImage} 
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-slate-900/80 hover:bg-black backdrop-blur-md border border-white/20 shadow-2xl text-white transition-all z-50 cursor-pointer flex items-center justify-center"
-              aria-label="Next Image"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </button>
-
-            {/* Pagination Dots */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/60 backdrop-blur-md z-50 shadow-lg">
-              {dashboardImages.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentImage(index)}
-                  className={`h-2 rounded-full transition-all cursor-pointer ${
-                    currentImage === index 
-                      ? 'bg-[#b3ffe2] w-6' 
-                      : 'bg-white/50 hover:bg-white w-2'
-                  }`}
-                  aria-label={`Go to slide ${index + 1}`}
-                />
-              ))}
-            </div>
-            
           </div>
+        </div>
+
+        {/* Pagination Dots - MOVED BELOW THE BROWSER WINDOW */}
+        <div className="flex items-center justify-center gap-2 mt-8 z-50 relative">
+          {dashboardImages.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentImage(index)}
+              className={`h-2 rounded-full transition-all cursor-pointer ${
+                currentImage === index 
+                  ? 'bg-teal-600 dark:bg-[#b3ffe2] w-8' 
+                  : 'bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-500 w-2'
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
         </div>
       </div>
 
