@@ -127,7 +127,7 @@ export default function AdminStatsPage() {
                         <XAxis dataKey="name" axisLine={{ stroke: '#94a3b8' }} tickLine={false} fontSize={10} tick={{ fill: '#536277', fontWeight: 'bold' }} label={{ value: 'Market Sectors', position: 'insideBottom', offset: -10, fontSize: 12, fill: '#546275', fontWeight: 'bold' }} />
                         <YAxis axisLine={{ stroke: '#94a3b8' }} tickLine={false} fontSize={10} tick={{ fill: '#536277' }} label={{ value: 'Frequency', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fontSize: 12, fill: '#546275', fontWeight: 'bold' } }} />
                         <Tooltip cursor={{ fill: 'rgba(0,0,0,0.05)' }} contentStyle={{ borderRadius: '12px', border: 'none', backgroundColor: '#c1c5a6', color: '#fff' }} />
-                        <Bar dataKey="total" radius={[6, 6, 0, 0]} barSize={50}>
+                        <Bar dataKey="total" radius={[6, 6, 0, 0]} barSize={30}>
                           {(data?.categoryData || []).map((entry: any, index: number) => {
                             const colors = ['#6366f1', '#f43f5e', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4'];
                             return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
@@ -169,7 +169,7 @@ export default function AdminStatsPage() {
                             <div key={i} className="p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/5 transition-all">
                                 <div className="flex justify-between items-start mb-2">
                                     <p className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest truncate max-w-[65%]">{item.email}</p>
-                                    <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md transition-colors ${item.sentiment?.includes('Pos') ? 'bg-emerald-100 dark:bg-emerald-500 text-[#34A853] dark:text-[#10b981]' : item.sentiment?.includes('Neg') ? 'bg-red-100 dark:bg-red-100/20 text-red-500 dark:text-red-500' : 'bg-slate-100 dark:bg-slate-500/20 text-slate-600 dark:text-[#94a3b8]'}`}>
+                                    <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md transition-colors ${item.sentiment?.includes('Pos') ? 'bg-emerald-100 dark:bg-emerald-900/30 text-[#34A853] dark:text-[#10b981]' : item.sentiment?.includes('Neg') ? 'bg-red-100 dark:bg-red-100/20 text-red-500 dark:text-red-500' : 'bg-slate-100 dark:bg-slate-500/20 text-slate-600 dark:text-[#94a3b8]'}`}>
                                       {item.sentiment?.split(' ')[0]}
                                     </span>
                                 </div>
