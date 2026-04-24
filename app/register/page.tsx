@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, Lock, Mail, User, Loader2 } from 'lucide-react';
+import { ArrowRight, Lock, Mail, User, Loader2, ShieldCheck, Users } from 'lucide-react';
 
 export default function AuthPage() {
   const router = useRouter();
@@ -14,6 +14,7 @@ export default function AuthPage() {
   const [isRegistering, setIsRegistering] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [roleMode, setRoleMode] = useState<'user' | 'admin'>('user'); 
 
   // 2. FORM DATA STATE
   const [formData, setFormData] = useState({
@@ -27,34 +28,42 @@ export default function AuthPage() {
     setError('');
     setLoading(true);
 
-    // Determine which API endpoint to hit
     const endpoint = isRegistering ? '/api/auth/register' : '/api/auth/login';
 
     try {
-      // --- UPDATED TO USE API_URL ---
       const response = await fetch(`${API_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        // FEATURE: Including 'role' in the body so MongoDB can store it
+        body: JSON.stringify({ 
+          ...formData, 
+          role: roleMode 
+        }), 
       });
 
       const data = await response.json();
 
-      // Check for success status from backend
       if (response.ok && (data.status === 'success' || data.message === 'Registration successful!')) {
         
-        // --- DATABASE-FIRST IDENTITY LOGIC ---
-        
-        // 1. Save verified email from response
+        // --- SYNC SESSION DATA ---
         localStorage.setItem('userEmail', data.user.email);
         
-        // 2. ONLY use the name returned by MongoDB Atlas
+        // Use the role returned from the database to ensure consistency
+        const confirmedRole = data.user.role || roleMode;
+        localStorage.setItem('userRole', confirmedRole); 
+        
         if (data.user && data.user.name) {
           localStorage.setItem('userName', data.user.name);
         }
         
-        // Success redirect
-        router.push(data.redirect_to || '/dashboard'); 
+        // --- SIMULTANEOUS ACCESS LOGIC ---
+        if (confirmedRole === 'admin') {
+          // Opens User Dashboard in new tab, sends current tab to Admin Panel
+          window.open('/dashboard', '_blank'); 
+          router.push('/admin-stats');        
+        } else {
+          router.push(data.redirect_to || '/dashboard'); 
+        }
       } else {
         setError(data.detail || 'Access Denied: Neural mismatch');
       }
@@ -73,15 +82,38 @@ export default function AuthPage() {
         <div className="block dark:hidden absolute inset-0 bg-white bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:24px_24px]" />
       </div>
 
-      <div className="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 relative z-10 -mt-40">
+      <div className="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 relative z-10 -mt-20">
         
+        {/* --- ROLE TOGGLE (Pricing Style) --- */}
+        <div className="pricing-toggle-container relative p-1.5 bg-white/70 dark:bg-slate-900/40 backdrop-blur-md border border-slate-200 dark:border-slate-700/50 rounded-full flex items-center shadow-sm w-full h-14 shrink-0">
+          <button 
+              type="button"
+              onClick={() => setRoleMode('user')}
+              className={`relative z-20 flex-1 py-2.5 text-[10px] font-bold uppercase tracking-[0.15em] transition-colors duration-500 flex items-center justify-center gap-2 ${roleMode === 'user' ? 'text-white dark:text-slate-900' : 'text-slate-500 dark:text-slate-400'}`}
+          >
+              <Users className="w-3.5 h-3.5" /> User
+          </button>
+          <button 
+              type="button"
+              onClick={() => setRoleMode('admin')}
+              className={`relative z-20 flex-1 py-2.5 text-[10px] font-bold uppercase tracking-[0.15em] transition-colors duration-500 flex items-center justify-center gap-2 ${roleMode === 'admin' ? 'text-white dark:text-slate-900' : 'text-slate-500 dark:text-slate-400'}`}
+          >
+              <ShieldCheck className="w-3.5 h-3.5" /> Admin Core
+          </button>
+          
+          <div 
+              className={`absolute top-1.5 left-1.5 bottom-1.5 w-[calc(50%-3px)] bg-slate-900 dark:bg-[#b3ffe2] rounded-full shadow-md transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] z-10 ${
+                  roleMode === 'admin' ? 'translate-x-[calc(100%-3px)]' : 'translate-x-0'
+              }`} 
+          />
+        </div>
+
         <div className="text-center space-y-2">
           <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white uppercase tracking-tighter">
             {isRegistering ? 'Register Identity' : 'Secure Access'}
           </h2>
-          <p className="text-slate-500 dark:text-slate-400 text-sm">
-            {isRegistering ? 'Create a new profile with' : 'Enter your credentials to sync with'}{' '}
-            <span className="text-teal-600 dark:text-[#b3ffe2] font-bold">SenticPulse AI</span>
+          <p className="text-slate-500 dark:text-slate-400 text-sm italic font-medium">
+            Authorized for <span className="text-teal-600 dark:text-[#b3ffe2] font-bold">{roleMode.toUpperCase()}</span> clearance
           </p>
         </div>
 
@@ -89,7 +121,6 @@ export default function AuthPage() {
           <form onSubmit={handleAuth} className="space-y-6">
             <div className="space-y-4">
               
-              {/* Name Input - ONLY VISIBLE DURING REGISTRATION */}
               {isRegistering && (
                 <div className="space-y-2 animate-in fade-in zoom-in-95 duration-300">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-4">Full Name</label>
@@ -101,13 +132,12 @@ export default function AuthPage() {
                       value={formData.name}
                       onChange={(e) => setFormData({...formData, name: e.target.value})}
                       placeholder="Rohan"
-                      className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-none focus:border-teal-500 dark:focus:border-[#b3ffe2]/50 transition-all"
+                      className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-teal-500 transition-all"
                     />
                   </div>
                 </div>
               )}
 
-              {/* Email Input */}
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-4">Email Address</label>
                 <div className="relative">
@@ -117,13 +147,12 @@ export default function AuthPage() {
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    placeholder="admin@senticpulse.ai"
-                    className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-none focus:border-teal-500 dark:focus:border-[#b3ffe2]/50 transition-all"
+                    placeholder={roleMode === 'admin' ? 'admin@senticpulse.ai' : 'user@senticpulse.ai'}
+                    className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-teal-500 transition-all"
                   />
                 </div>
               </div>
 
-              {/* Password Input */}
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-4">Neural Access Key</label>
                 <div className="relative">
@@ -134,21 +163,20 @@ export default function AuthPage() {
                     value={formData.password}
                     onChange={(e) => setFormData({...formData, password: e.target.value})}
                     placeholder="••••••••"
-                    className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-none focus:border-teal-500 dark:focus:border-[#b3ffe2]/50 transition-all"
+                    className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-teal-500 transition-all"
                   />
                 </div>
               </div>
             </div>
 
-            {/* ERROR DISPLAY */}
             {error && <p className="text-red-500 text-[10px] font-bold uppercase text-center">{error}</p>}
 
             <button 
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-slate-900 dark:bg-[#b3ffe2] hover:bg-slate-800 dark:hover:bg-[#9debc9] text-white dark:text-black rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all shadow-lg shadow-slate-200 dark:shadow-[#b3ffe2]/20 flex items-center justify-center gap-2 group active:scale-95 disabled:opacity-50"
+              className={`w-full py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-2 group active:scale-95 disabled:opacity-50 text-white dark:text-black ${roleMode === 'admin' ? 'bg-teal-600 hover:bg-teal-700 dark:bg-[#b3ffe2] dark:hover:bg-[#9debc9]' : 'bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200'}`}
             >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (isRegistering ? 'ESTABLISH IDENTITY' : 'ESTABLISH CONNECTION')} 
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (isRegistering ? 'ESTABLISH IDENTITY' : `LOGIN AS ${roleMode.toUpperCase()}`)} 
               {!loading && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
             </button>
           </form>
@@ -170,13 +198,11 @@ export default function AuthPage() {
           </div>
         </div>
 
-        {/* FOOTER TAG */}
         <div className="flex justify-center items-center gap-2 opacity-60 dark:opacity-40">
            <div className="h-1 w-1 rounded-full bg-teal-500 dark:bg-[#b3ffe2]" />
            <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">End-to-End Encrypted</span>
            <div className="h-1 w-1 rounded-full bg-teal-500 dark:bg-[#b3ffe2]" />
         </div>
-
       </div>
     </div>
   );

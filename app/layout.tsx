@@ -3,7 +3,7 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
 import Link from 'next/link';
-import { User, LogOut, Settings, ShoppingCart, Trash2, ArrowRight } from 'lucide-react';
+import { User, LogOut, Settings, ShoppingCart, Trash2, ArrowRight, ShieldCheck } from 'lucide-react';
 import GlobalNav from '@/components/GlobalNav';
 import ThemeToggle from '@/components/ThemeToggle'; 
 import { ThemeProvider } from '@/components/ThemeProvider'; 
@@ -29,9 +29,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   // --- DYNAMIC BACKEND URL ---
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-  // --- CART & USER STATE ---
+  // --- CART & USER STATE (Added Role) ---
   const [cartItems, setCartItems] = useState<any[]>([]);
-  const [userData, setUserData] = useState<{ email: string; name: string; tier: string } | null>(null);
+  const [userData, setUserData] = useState<{ email: string; name: string; tier: string; role: string } | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -105,6 +105,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         const res = await fetch(`${API_URL}/api/auth/user-profile/${savedEmail}`);
         const data = await res.json();
         setUserData(data);
+        // Sync role to localStorage to ensure Nav and Guards work
+        if (data.role) localStorage.setItem('userRole', data.role);
       } catch (err) {
         console.error("Neural Identity Link failed");
       }
@@ -128,7 +130,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     pathname.startsWith('/shippers') || 
                     pathname.startsWith('/settings') ||
                     pathname.startsWith('/checkout') ||
-                    pathname.startsWith('/product');
+                    pathname.startsWith('/product') ||
+                    pathname.startsWith('/admin-stats'); // Added Admin Stats path
 
   const isAuthPage = pathname === '/login' || pathname === '/register';
 
@@ -174,9 +177,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {/* --- UPDATED: FLOATING NOTIFICATION BOX --- */}
 {showToast && (
   <div className="animate-in fade-in slide-in-from-right-4 duration-500 
-    /* Light Mode Styles: Solid White with Slate Border */
     bg-white border-slate-200 text-slate-900 
-    /* Dark Mode Styles: Blur with Mint Border */
     dark:bg-white/10 dark:backdrop-blur-xl dark:border-[#b3ffe2]/30 dark:text-[#b3ffe2]
     px-5 py-2.5 rounded-2xl shadow-xl dark:shadow-[0_0_30px_rgba(179,255,226,0.1)] mr-1"
   >
@@ -271,16 +272,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               >
                 <button 
                   onClick={() => setIsAccountOpen(!isAccountOpen)}
-                  className="h-10 w-10 rounded-full bg-slate-900 dark:bg-[#b3ffe2] flex items-center justify-center text-white dark:text-black border-2 border-white dark:border-black shadow-lg hover:scale-110 active:scale-95 transition-all duration-300 relative z-[140]"
+                  className={`h-10 w-10 rounded-full flex items-center justify-center text-white dark:text-black border-2 border-white dark:border-black shadow-lg hover:scale-110 active:scale-95 transition-all duration-300 relative z-[140] ${userData?.role === 'admin' ? 'bg-amber-600 dark:bg-amber-400' : 'bg-slate-900 dark:bg-[#b3ffe2]'}`}
                 >
-                  <User size={18} strokeWidth={2.5} />
+                  {userData?.role === 'admin' ? <ShieldCheck size={18} strokeWidth={2.5} /> : <User size={18} strokeWidth={2.5} />}
                 </button>
                 
                 <div className={`absolute right-0 top-full pt-4 w-64 transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] z-[150] ${isAccountOpen ? 'opacity-100 visible translate-y-0 pointer-events-auto' : 'opacity-0 invisible translate-y-4 pointer-events-none'}`}>
                   <div className="bg-white dark:bg-[#0a0a0a] backdrop-blur-3xl border border-black/10 dark:border-[#b3ffe2]/20 rounded-[2.5rem] shadow-2xl overflow-hidden py-3">
                     <div className="px-6 py-5 border-b border-black/5 dark:border-white/5 mb-2 bg-slate-50 dark:bg-[#b3ffe2]/5">
                       <p className="text-[9px] font-black text-teal-600 dark:text-[#b3ffe2] uppercase tracking-[0.2em] mb-1">
-                        Neural ID: {userData?.tier || 'Enterprise'}
+                        Neural ID: {userData?.role === 'admin' ? 'Admin Core' : (userData?.tier || 'Enterprise')}
                       </p>
                       <p className="text-xs font-bold text-slate-900 dark:text-white truncate capitalize">
                         {userData?.name || 'Syncing Identity...'}
@@ -300,6 +301,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                         onClick={() => {
                           localStorage.removeItem('userEmail');
                           localStorage.removeItem('userName');
+                          localStorage.removeItem('userRole'); // CRITICAL: Clear role on sign out
                           setUserData(null);
                           router.push('/');
                         }} 

@@ -1,11 +1,13 @@
 'use client';
 
-import React, { memo, useMemo, useState } from 'react';
-import { Send, Hash, FileText, ShieldAlert, Sparkles, User } from 'lucide-react';
+import React, { memo, useState, useEffect, useCallback } from 'react';
+import { Send, Hash, FileText, Sparkles, User, Trash2, RefreshCw } from 'lucide-react';
 
-// 1. Memoized Cluster Item
-const ClusterItem = memo(({ cluster }: any) => (
-  <div className="group/cluster flex items-center justify-between p-4 rounded-2xl bg-slate-50/50 dark:bg-white/5 border border-transparent hover:border-slate-300 dark:hover:border-white/10 hover:bg-white dark:hover:bg-white/10 transition-all cursor-pointer">
+const ClusterItem = memo(({ cluster, onClick }: any) => (
+  <div 
+    onClick={() => onClick(cluster.name)}
+    className="group/cluster flex items-center justify-between p-4 rounded-2xl bg-slate-50/50 dark:bg-white/5 border border-transparent hover:border-slate-300 dark:hover:border-white/10 hover:bg-white dark:hover:bg-white/10 transition-all cursor-pointer active:scale-95"
+  >
     <span className="text-xs font-bold text-teal-600 dark:text-[#b3ffe2] group-hover/cluster:text-black dark:group-hover/cluster:text-white transition-colors">
       #{cluster.name}
     </span>
@@ -17,45 +19,74 @@ const ClusterItem = memo(({ cluster }: any) => (
 ClusterItem.displayName = "ClusterItem";
 
 export default function SentimentPage() {
-  // --- DYNAMIC BACKEND URL ---
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-  // --- STATE FOR CHAT LOGIC ---
   const [inputText, setInputText] = useState("");
-  const [chatHistory, setChatHistory] = useState<{role: string, text: string}[]>([]);
+  const [chatHistory, setChatHistory] = useState<{role: string, text: string, confidence?: string}[]>([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [clusters, setClusters] = useState<any[]>([]);
 
-  const clusters = useMemo(() => [
-    { name: "SupplyChainShortage", status: "Negative", color: "text-red-600 dark:text-red-500", bg: "bg-red-50 dark:bg-red-500/10" },
-    { name: "TechPulse2026", status: "Positive", color: "text-emerald-600 dark:text-[#34A853]", bg: "bg-emerald-50 dark:bg-[#34A853]/10" },
-    { name: "LogisticsReform", status: "Neutral", color: "text-slate-500 dark:text-slate-400", bg: "bg-slate-50 dark:bg-white/5" },
-  ], []);
+  const loadInitialData = useCallback(async () => {
+    try {
+      const clusterRes = await fetch(`${API_URL}/api/clusters`);
+      const clusterData = await clusterRes.json();
+      if (Array.isArray(clusterData)) setClusters(clusterData);
 
-  // --- UPDATED: THE FUNCTION THAT TALKS TO API_URL ---
+      // ACCOUNT-SPECIFIC FIX: Fetch history based on logged-in email
+      const userEmail = localStorage.getItem("userEmail") || "guest";
+      const historyRes = await fetch(`${API_URL}/api/chat/history?email=${userEmail}`);
+      const historyData = await historyRes.json();
+      if (Array.isArray(historyData)) setChatHistory(historyData);
+    } catch (error) {
+      console.error("Initialization failed:", error);
+    }
+  }, [API_URL]);
+
+  useEffect(() => {
+    loadInitialData();
+  }, [loadInitialData]);
+
+  const handleRefresh = () => {
+    loadInitialData();
+  };
+
+  const handleClearChat = () => {
+    setChatHistory([]);
+  };
+
   const handleSendMessage = async () => {
     if (!inputText.trim()) return;
 
-    // 1. Add user's message to the chat
-    const newChat = [...chatHistory, { role: "user", text: inputText }];
-    setChatHistory(newChat);
+    const userEmail = localStorage.getItem("userEmail") || "guest"; 
+    const userMessage = inputText;
+    const currentChat = [...chatHistory, { role: "user", text: userMessage }];
+    setChatHistory(currentChat);
     setInputText(""); 
     setIsTyping(true); 
 
     try {
-      // 2. Send to FastAPI (UPDATED URL)
       const response = await fetch(`${API_URL}/api/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: inputText }),
+        body: JSON.stringify({ 
+          text: userMessage,
+          email: userEmail 
+        }), 
       });
-      
-      const data = await response.json();
 
-      // 3. Add AI's response to the chat
-      setChatHistory([...newChat, { role: "agent", text: data.ai_analysis }]);
+      const data = await response.json();
+      
+      setChatHistory([
+        ...currentChat, 
+        { 
+          role: "agent", 
+          text: `Neural Analysis: ${data.sentiment}`, 
+          confidence: data.confidence 
+        }
+      ]);
     } catch (error) {
-      console.error("Backend connection failed", error);
-      setChatHistory([...newChat, { role: "agent", text: "Error: Could not reach the Neural Core. Connection timed out." }]);
+      console.error("Connection failed!", error);
+      setChatHistory([...currentChat, { role: "agent", text: "Neural Core unreachable." }]);
     } finally {
       setIsTyping(false);
     }
@@ -63,7 +94,6 @@ export default function SentimentPage() {
 
   return (
     <div className="relative min-h-screen w-full bg-transparent overflow-clip font-sans transition-colors duration-500">
-      
       <div className="pt-2 pb-16 px-6 max-w-[1400px] mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-700 relative z-10">
         
         <header className="space-y-1">
@@ -74,7 +104,6 @@ export default function SentimentPage() {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
           <div className="lg:col-span-2 flex flex-col h-[650px] bg-white/80 dark:bg-[#b3ffe2]/5 backdrop-blur-2xl border border-slate-200 dark:border-[#b3ffe2]/10 rounded-[2.5rem] overflow-hidden shadow-xl dark:shadow-2xl transition-all">
             
             <div className="p-5 border-b border-slate-100 dark:border-white/5 flex justify-between items-center bg-slate-50/50 dark:bg-white/5 shrink-0">
@@ -82,32 +111,31 @@ export default function SentimentPage() {
                 <div className="h-2 w-2 rounded-full bg-teal-500 dark:bg-[#b3ffe2] animate-pulse" />
                 <span className="text-[10px] font-bold uppercase tracking-widest text-slate-900 dark:text-white">Sentic Agent v4.22</span>
               </div>
-              <span className="text-[9px] font-mono text-slate-400 dark:text-slate-500">ENCRYPTED_SESSION_ACTIVE</span>
+              
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={handleRefresh}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-[9px] font-bold uppercase tracking-tighter text-slate-600 dark:text-slate-400 transition-all active:scale-95"
+                >
+                  <RefreshCw className="w-3 h-3" /> Refresh
+                </button>
+                <button 
+                  onClick={handleClearChat}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 text-[9px] font-bold uppercase tracking-tighter text-red-600 dark:text-red-400 transition-all active:scale-95"
+                >
+                  <Trash2 className="w-3 h-3" /> Clear Chat
+                </button>
+              </div>
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide">
-              
               <div className="flex gap-4 items-start">
                 <div className="h-8 w-8 rounded-xl bg-teal-50 dark:bg-[#b3ffe2]/10 border border-teal-100 dark:border-[#b3ffe2]/20 flex items-center justify-center shrink-0">
                   <Sparkles className="w-4 h-4 text-teal-600 dark:text-[#b3ffe2]" />
                 </div>
                 <div className="p-4 bg-white dark:bg-white/5 border border-slate-100 dark:border-white/10 rounded-2xl rounded-tl-none max-w-lg shadow-sm">
                   <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed transition-colors">
-                    Hello. I am currently monitoring <span className="text-teal-700 dark:text-[#b3ffe2] font-bold">#Electronics</span> and <span className="text-teal-700 dark:text-[#b3ffe2] font-bold">#SME_Logistics</span>. Paste a link or type a topic to run a real-time misinformation check.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-4 items-start">
-                <div className="h-8 w-8 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 flex items-center justify-center shrink-0">
-                  <ShieldAlert className="w-4 h-4 text-red-600 dark:text-red-500" />
-                </div>
-                <div className="p-4 bg-red-50 dark:bg-red-500/5 border border-red-100 dark:border-red-500/20 rounded-2xl rounded-tl-none max-w-lg shadow-sm">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[10px] font-black text-red-600 dark:text-red-500 uppercase tracking-widest">Misinformation Detected</span>
-                  </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed transition-colors">
-                    Recent clusters for <span className="text-slate-900 dark:text-white font-bold">"ExpressGlobal Delay"</span> show a 78% correlation with known bot-farm patterns. Recommend lower trust score for this shipper.
+                    Hello. I am currently monitoring <span className="text-teal-700 dark:text-[#b3ffe2] font-bold">#Electronics</span> and <span className="text-teal-700 dark:text-[#b3ffe2] font-bold">#SME_Logistics</span>. Paste a link or type a topic to run a real-time sentiment pulse check.
                   </p>
                 </div>
               </div>
@@ -133,6 +161,11 @@ export default function SentimentPage() {
                     <p className="text-xs leading-relaxed transition-colors">
                       {msg.text}
                     </p>
+                    {msg.confidence && (
+                      <p className="text-[9px] mt-2 font-mono text-teal-600 dark:text-[#b3ffe2] uppercase tracking-tighter">
+                        Confidence: {msg.confidence}
+                      </p>
+                    )}
                   </div>
                 </div>
               ))}
@@ -143,7 +176,7 @@ export default function SentimentPage() {
                     <Sparkles className="w-4 h-4 text-teal-600 dark:text-[#b3ffe2] animate-spin" />
                   </div>
                   <div className="p-4 bg-white dark:bg-white/5 border border-slate-100 dark:border-white/10 rounded-2xl rounded-tl-none max-w-lg shadow-sm">
-                    <p className="text-xs text-slate-400 dark:text-slate-500 animate-pulse">Processing neural input...</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 animate-pulse">Running Transformer Inference...</p>
                   </div>
                 </div>
               )}
@@ -156,7 +189,7 @@ export default function SentimentPage() {
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                  placeholder="Ask Agent to analyze a trend or URL..."
+                  placeholder="Enter feedback or social text for pulse analysis..."
                   className="w-full bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-2xl py-4 pl-6 pr-14 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-none focus:border-black dark:focus:border-[#b3ffe2]/40 transition-all"
                 />
                 <button 
@@ -176,9 +209,16 @@ export default function SentimentPage() {
                 <Hash className="w-4 h-4 text-teal-600 dark:text-[#b3ffe2]" /> Live Clusters
               </h3>
               <div className="space-y-3">
-                {clusters.map((cluster, i) => (
-                  <ClusterItem key={i} cluster={cluster} />
+                {Array.isArray(clusters) && clusters.map((cluster, i) => (
+                  <ClusterItem 
+                    key={i} 
+                    cluster={cluster} 
+                    onClick={(name: string) => setInputText(`Perform sentiment analysis for ${name}`)}
+                  />
                 ))}
+                {(!clusters || clusters.length === 0) && (
+                   <p className="text-[10px] text-slate-400 text-center py-4">Syncing with MongoDB Cluster Engine...</p>
+                )}
               </div>
             </div>
 
@@ -197,7 +237,6 @@ export default function SentimentPage() {
               </div>
               <div className="absolute -bottom-10 -right-10 h-32 w-32 bg-teal-500 dark:bg-[#b3ffe2] opacity-5 blur-[60px]" />
             </div>
-
           </div>
         </div>
       </div>
