@@ -1,14 +1,26 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { 
   Zap, ShieldCheck, ArrowRight, Star, Hexagon, Triangle, Box, 
-  Circle, Infinity, Globe, Radar, Activity, ArrowDown 
+  Circle, Infinity, Globe, Radar, Activity, ArrowDown, ChevronLeft, ChevronRight 
 } from 'lucide-react';
 import CardSwap, { Card } from '@/components/CardSwap'; 
 
 export default function HomePage() {
+  // --- CAROUSEL STATE ---
+  const dashboardImages = [
+    '/image1.png', 
+    '/image2.png',
+    '/image3.png',
+    '/image4.png'
+  ];
+  const [currentImage, setCurrentImage] = useState(0);
+
+  const nextImage = () => setCurrentImage((prev) => (prev + 1) % dashboardImages.length);
+  const prevImage = () => setCurrentImage((prev) => (prev - 1 + dashboardImages.length) % dashboardImages.length);
+
   return (
     <div className="relative flex flex-col w-full min-h-screen bg-transparent font-sans overflow-clip transition-colors duration-500">
       
@@ -29,7 +41,7 @@ export default function HomePage() {
         `}
       </style>
 
-      {/* --- BACKGROUND ADAPTER (No Beams here, handled by layout.tsx) --- */}
+      {/* --- BACKGROUND ADAPTER --- */}
       <div className="fixed inset-0 z-0 bg-transparent pointer-events-none transition-colors duration-500">
         <div className="block dark:hidden absolute inset-0 opacity-100 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] [background-size:24px_24px]" />
       </div>
@@ -92,11 +104,14 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* --- PRODUCT PEEK --- */}
+      {/* --- PRODUCT PEEK WITH IMAGE CAROUSEL --- */}
       <div className="relative z-20 w-full max-w-5xl mx-auto px-6 -mt-32 md:-mt-48 pb-12">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[50%] bg-teal-400 dark:bg-[#b3ffe2] opacity-[0.03] dark:opacity-[0.08] blur-[100px] rounded-full pointer-events-none"></div>
+        
+        {/* Main Mock Browser Window */}
         <div className="relative w-full aspect-[16/9] bg-white dark:bg-slate-950/80 backdrop-blur-2xl border border-slate-200 dark:border-white/10 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col group">
-          <div className="h-10 md:h-12 border-b border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-white/[0.02] flex items-center px-4 gap-2">
+          
+          <div className="h-10 md:h-12 border-b border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-white/[0.02] flex items-center px-4 gap-2 shrink-0 relative z-20">
             <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700"></div>
             <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700"></div>
             <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700"></div>
@@ -104,31 +119,61 @@ export default function HomePage() {
               <span className="text-[8px] text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono">app.senticpulse.ai/dashboard</span>
             </div>
           </div>
-          <div className="flex-1 p-4 md:p-8 flex gap-6">
-            <div className="w-48 hidden md:flex flex-col gap-4 border-r border-slate-100 dark:border-white/5 pr-6">
-              <div className="h-4 w-3/4 bg-slate-200 dark:bg-white/10 rounded animate-pulse"></div>
-              <div className="h-4 w-full bg-slate-100 dark:bg-white/5 rounded"></div>
-              <div className="h-4 w-5/6 bg-slate-100 dark:bg-white/5 rounded"></div>
-              <div className="mt-8 h-4 w-2/3 bg-slate-100 dark:bg-white/5 rounded"></div>
-              <div className="h-4 w-full bg-slate-100 dark:bg-white/5 rounded"></div>
-            </div>
-            <div className="flex-1 flex flex-col gap-6">
-              <div className="flex justify-between items-end">
-                <div className="h-8 w-1/3 bg-slate-200 dark:bg-white/10 rounded"></div>
-                <div className="h-8 w-24 bg-teal-50 dark:bg-[#b3ffe2]/10 border border-teal-100 dark:border-[#b3ffe2]/20 rounded-lg"></div>
-              </div>
-              <div className="flex-1 flex flex-col lg:flex-row gap-4">
-                <div className="flex-[2] bg-gradient-to-br from-slate-50 dark:from-[#b3ffe2]/5 to-transparent border border-slate-100 dark:border-white/5 rounded-xl relative overflow-hidden shadow-inner dark:shadow-none">
-                  <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-slate-100 dark:from-[#b3ffe2]/10 to-transparent"></div>
+          
+          {/* CAROUSEL BODY */}
+          <div className="flex-1 relative w-full h-full bg-slate-100 dark:bg-slate-900">
+            
+            {/* The sliding track */}
+            <div 
+              className="absolute inset-0 w-full h-full flex transition-transform duration-700 ease-out" 
+              style={{ transform: `translateX(-${currentImage * 100}%)` }}
+            >
+              {dashboardImages.map((src, index) => (
+                <div key={index} className="w-full h-full flex-shrink-0 relative">
+                  <img 
+                    src={src} 
+                    alt={`Dashboard View ${index + 1}`} 
+                    className="w-full h-full object-cover object-center"
+                  />
                 </div>
-                <div className="flex-1 flex flex-col gap-4">
-                  <div className="flex-1 bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl"></div>
-                  <div className="flex-1 bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl"></div>
-                </div>
-              </div>
+              ))}
             </div>
+
+            {/* Navigation Arrows - Left Side (Strictly Positioned) */}
+            <button 
+              onClick={prevImage} 
+              className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-slate-900/80 hover:bg-black backdrop-blur-md border border-white/20 shadow-2xl text-white transition-all z-50 cursor-pointer flex items-center justify-center"
+              aria-label="Previous Image"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+            
+            {/* Navigation Arrows - Right Side (Strictly Positioned) */}
+            <button 
+              onClick={nextImage} 
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-slate-900/80 hover:bg-black backdrop-blur-md border border-white/20 shadow-2xl text-white transition-all z-50 cursor-pointer flex items-center justify-center"
+              aria-label="Next Image"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+
+            {/* Pagination Dots */}
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/60 backdrop-blur-md z-50 shadow-lg">
+              {dashboardImages.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentImage(index)}
+                  className={`h-2 rounded-full transition-all cursor-pointer ${
+                    currentImage === index 
+                      ? 'bg-[#b3ffe2] w-6' 
+                      : 'bg-white/50 hover:bg-white w-2'
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+            
           </div>
-          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white via-white/80 dark:from-black dark:via-black/80 to-transparent pointer-events-none"></div>
         </div>
       </div>
 
@@ -261,29 +306,30 @@ export default function HomePage() {
         </section>
 
         <div className="w-full max-w-[12200px] mx-auto mt-32 mb-16 h-[1px] bg-slate-200 dark:bg-[#b3ffe2] dark:opacity-20"></div>
-{/* RESTORED FOOTER */}
-<footer className="w-full bg-white dark:bg-black pb-12 px-6 relative overflow-hidden z-10 transition-colors duration-500">
-  <div className="absolute top-0 bottom-0 right-0 w-1/2 pointer-events-none opacity-100 dark:opacity-30 z-0 text-slate-300 dark:text-[#b3ffe2]" style={{ backgroundImage: 'radial-gradient(circle, currentColor 1.5px, transparent 1.5px)', backgroundSize: '28px 28px', backgroundPosition: 'bottom right', WebkitMaskImage: 'linear-gradient(to top left, black 0%, transparent 80%)', maskImage: 'linear-gradient(to top left, black 0%, transparent 80%)' }} />
-  <div className="max-w-[1200px] mx-auto flex flex-col lg:flex-row items-center lg:items-start justify-between gap-16 relative z-10">
-    <div className="flex-1 flex flex-col gap-12 text-center lg:text-left w-full pt-4">
-      <div><h3 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2">SenticPulse AI</h3><p className="text-slate-600 dark:text-slate-500 text-xs leading-relaxed">Next-generation SME Intelligence & Risk Mitigation.</p></div>
-      <div className="grid grid-cols-3 gap-8 text-left max-w-lg mx-auto lg:mx-0 w-full">
-        <div><h4 className="text-slate-900 dark:text-white font-semibold text-sm mb-6 tracking-wide">Product</h4><ul className="space-y-4"><li><Link href="/" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Features</Link></li><li><Link href="/pricing" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Pricing</Link></li><li><Link href="/pricing" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">API</Link></li></ul></div>
-        <div><h4 className="text-slate-900 dark:text-white font-semibold text-sm mb-6 tracking-wide">Resources</h4><ul className="space-y-4"><li><Link href="#" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Documentation</Link></li><li><Link href="/blogs" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Blogs</Link></li><li><Link href="/blogs" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Case Studies</Link></li></ul></div>
-        <div><h4 className="text-slate-900 dark:text-white font-semibold text-sm mb-6 tracking-wide">Company</h4><ul className="space-y-4"><li><Link href="/" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">About</Link></li><li><Link href="/careers" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Careers</Link></li><li><Link href="/contact" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Contact</Link></li></ul></div>
-      </div>
-    </div>
-    <div className="w-full lg:w-[40%] flex flex-col items-center lg:items-end justify-center relative pt-4">
-      <div className="relative p-8 rounded-3xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 shadow-lg dark:shadow-[0_0_50px_rgba(0,0,0,0.5)] backdrop-blur-sm group hover:border-teal-300 dark:hover:border-[#b3ffe2]/20 transition-colors w-full max-w-sm overflow-hidden">
-        <div className="absolute -right-10 -top-10 w-40 h-40 bg-teal-400 dark:bg-[#b3ffe2] opacity-10 blur-3xl group-hover:opacity-20 transition-opacity duration-500"></div>
-        <h4 className="text-slate-900 dark:text-white text-xl font-semibold mb-2">Ready to scale?</h4>
-        <p className="text-slate-600 dark:text-slate-400 text-sm mb-8 leading-relaxed">Get a personalized demo and see how SenticPulse AI can protect your supply chain.</p>
-        <Link href="/contact" className="relative group/btn cursor-pointer block w-full"><div className="relative bg-slate-900 dark:bg-black border border-slate-700 dark:border-[#b3ffe2]/30 px-6 py-4 rounded-xl flex items-center justify-between transition-all duration-300 hover:bg-slate-800 dark:hover:bg-[#b3ffe2]/10 hover:border-teal-500 dark:hover:border-[#b3ffe2]/80 active:scale-95 shadow-md dark:shadow-[0_0_20px_rgba(0,0,0,0.5)] group-hover/btn:shadow-xl dark:group-hover/btn:shadow-[0_0_30px_rgba(179,255,226,0.2)]"><span className="text-xs font-black text-white uppercase tracking-widest group-hover/btn:text-teal-400 dark:group-hover/btn:text-[#b3ffe2] transition-colors">Contact Enterprise Sales</span><div className="h-8 w-8 rounded-full bg-slate-800 dark:bg-[#b3ffe2]/10 flex items-center justify-center group-hover/btn:bg-slate-700 dark:group-hover/btn:bg-[#b3ffe2]/20 transition-colors"><ArrowRight className="w-4 h-4 text-teal-400 dark:text-[#b3ffe2] group-hover/btn:translate-x-1 transition-transform" /></div></div></Link>
-      </div>
-    </div>
-  </div>
-  <div className="max-w-[1200px] mx-auto mt-20 flex flex-col md:flex-row justify-between items-center text-[10px] text-slate-500 dark:text-slate-600 uppercase tracking-widest font-bold border-t border-slate-200 dark:border-white/5 pt-8 relative z-10"><p>© 2026 SenticPulse AI. All rights reserved.</p><div className="flex gap-6 mt-4 md:mt-0"><a href="#" className="hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Privacy</a><a href="#" className="hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Terms</a><a href="#" className="hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">API Status</a></div></div>
-</footer>
+
+        {/* FOOTER */}
+        <footer className="w-full bg-white dark:bg-black pb-12 px-6 relative overflow-hidden z-10 transition-colors duration-500">
+          <div className="absolute top-0 bottom-0 right-0 w-1/2 pointer-events-none opacity-100 dark:opacity-30 z-0 text-slate-300 dark:text-[#b3ffe2]" style={{ backgroundImage: 'radial-gradient(circle, currentColor 1.5px, transparent 1.5px)', backgroundSize: '28px 28px', backgroundPosition: 'bottom right', WebkitMaskImage: 'linear-gradient(to top left, black 0%, transparent 80%)', maskImage: 'linear-gradient(to top left, black 0%, transparent 80%)' }} />
+          <div className="max-w-[1200px] mx-auto flex flex-col lg:flex-row items-center lg:items-start justify-between gap-16 relative z-10">
+            <div className="flex-1 flex flex-col gap-12 text-center lg:text-left w-full pt-4">
+              <div><h3 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-2">SenticPulse AI</h3><p className="text-slate-600 dark:text-slate-500 text-xs leading-relaxed">Next-generation SME Intelligence & Risk Mitigation.</p></div>
+              <div className="grid grid-cols-3 gap-8 text-left max-w-lg mx-auto lg:mx-0 w-full">
+                <div><h4 className="text-slate-900 dark:text-white font-semibold text-sm mb-6 tracking-wide">Product</h4><ul className="space-y-4"><li><Link href="/" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Features</Link></li><li><Link href="/pricing" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Pricing</Link></li><li><Link href="/pricing" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">API</Link></li></ul></div>
+                <div><h4 className="text-slate-900 dark:text-white font-semibold text-sm mb-6 tracking-wide">Resources</h4><ul className="space-y-4"><li><Link href="#" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Documentation</Link></li><li><Link href="/blogs" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Blogs</Link></li><li><Link href="/blogs" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Case Studies</Link></li></ul></div>
+                <div><h4 className="text-slate-900 dark:text-white font-semibold text-sm mb-6 tracking-wide">Company</h4><ul className="space-y-4"><li><Link href="/" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">About</Link></li><li><Link href="/careers" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Careers</Link></li><li><Link href="/contact" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Contact</Link></li></ul></div>
+              </div>
+            </div>
+            <div className="w-full lg:w-[40%] flex flex-col items-center lg:items-end justify-center relative pt-4">
+              <div className="relative p-8 rounded-3xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 shadow-lg dark:shadow-[0_0_50px_rgba(0,0,0,0.5)] backdrop-blur-sm group hover:border-teal-300 dark:hover:border-[#b3ffe2]/20 transition-colors w-full max-w-sm overflow-hidden">
+                <div className="absolute -right-10 -top-10 w-40 h-40 bg-teal-400 dark:bg-[#b3ffe2] opacity-10 blur-3xl group-hover:opacity-20 transition-opacity duration-500"></div>
+                <h4 className="text-slate-900 dark:text-white text-xl font-semibold mb-2">Ready to scale?</h4>
+                <p className="text-slate-600 dark:text-slate-400 text-sm mb-8 leading-relaxed">Get a personalized demo and see how SenticPulse AI can protect your supply chain.</p>
+                <Link href="/contact" className="relative group/btn cursor-pointer block w-full"><div className="relative bg-slate-900 dark:bg-black border border-slate-700 dark:border-[#b3ffe2]/30 px-6 py-4 rounded-xl flex items-center justify-between transition-all duration-300 hover:bg-slate-800 dark:hover:bg-[#b3ffe2]/10 hover:border-teal-500 dark:hover:border-[#b3ffe2]/80 active:scale-95 shadow-md dark:shadow-[0_0_20px_rgba(0,0,0,0.5)] group-hover/btn:shadow-xl dark:group-hover/btn:shadow-[0_0_30px_rgba(179,255,226,0.2)]"><span className="text-xs font-black text-white uppercase tracking-widest group-hover/btn:text-teal-400 dark:group-hover/btn:text-[#b3ffe2] transition-colors">Contact Enterprise Sales</span><div className="h-8 w-8 rounded-full bg-slate-800 dark:bg-[#b3ffe2]/10 flex items-center justify-center group-hover/btn:bg-slate-700 dark:group-hover/btn:bg-[#b3ffe2]/20 transition-colors"><ArrowRight className="w-4 h-4 text-teal-400 dark:text-[#b3ffe2] group-hover/btn:translate-x-1 transition-transform" /></div></div></Link>
+              </div>
+            </div>
+          </div>
+          <div className="max-w-[1200px] mx-auto mt-20 flex flex-col md:flex-row justify-between items-center text-[10px] text-slate-500 dark:text-slate-600 uppercase tracking-widest font-bold border-t border-slate-200 dark:border-white/5 pt-8 relative z-10"><p>© 2026 SenticPulse AI. All rights reserved.</p><div className="flex gap-6 mt-4 md:mt-0"><a href="#" className="hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Privacy</a><a href="#" className="hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Terms</a><a href="#" className="hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">API Status</a></div></div>
+        </footer>
       </div>
     </div>
   );
