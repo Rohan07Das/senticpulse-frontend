@@ -105,11 +105,11 @@ export default function HomePage() {
       </div>
 
       {/* --- PRODUCT PEEK WITH IMAGE CAROUSEL --- */}
-      {/* Increased max-width and added side padding (px-12 lg:px-24) to create room for the arrows */}
+      {/* Container with margins for arrows */}
       <div className="relative z-20 w-full max-w-6xl mx-auto px-12 lg:px-24 -mt-32 md:-mt-48 pb-12">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[50%] bg-teal-400 dark:bg-[#b3ffe2] opacity-[0.03] dark:opacity-[0.08] blur-[100px] rounded-full pointer-events-none"></div>
         
-        {/* Navigation Arrows - MOVED COMPLETELY OUTSIDE THE BROWSER WINDOW */}
+        {/* Navigation Arrows - Kept Outside */}
         <button 
           onClick={prevImage} 
           className="absolute left-2 lg:left-6 top-1/2 -translate-y-1/2 p-3 rounded-full bg-slate-900 hover:bg-black border border-slate-700 shadow-2xl text-white transition-all z-50 cursor-pointer flex items-center justify-center"
@@ -127,7 +127,8 @@ export default function HomePage() {
         </button>
 
         {/* Main Mock Browser Window */}
-        <div className="relative w-full aspect-[16/9] bg-white dark:bg-slate-950/80 backdrop-blur-2xl border border-slate-200 dark:border-white/10 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col group">
+        {/* FIX: Removed aspect-[16/9] to allow image natural height */}
+        <div className="relative w-full bg-white dark:bg-slate-950/80 backdrop-blur-2xl border border-slate-200 dark:border-white/10 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col group">
           
           <div className="h-10 md:h-12 border-b border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-white/[0.02] flex items-center px-4 gap-2 shrink-0 relative z-20">
             <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700"></div>
@@ -139,18 +140,22 @@ export default function HomePage() {
           </div>
           
           {/* CAROUSEL BODY */}
-          <div className="flex-1 relative w-full h-full bg-slate-100 dark:bg-slate-900">
+          {/* FIX: Removed h-full so height follows the sliding track content */}
+          <div className="flex-1 relative w-full bg-slate-100 dark:bg-slate-900">
             {/* The sliding track */}
+            {/* FIX: Removed absolute inset-0 and h-full, let it use natural height */}
             <div 
-              className="absolute inset-0 w-full h-full flex transition-transform duration-700 ease-out" 
+              className="w-full flex transition-transform duration-700 ease-out" 
               style={{ transform: `translateX(-${currentImage * 100}%)` }}
             >
               {dashboardImages.map((src, index) => (
-                <div key={index} className="w-full h-full flex-shrink-0 relative">
+                // FIX: Removed h-full from image container
+                <div key={index} className="w-full flex-shrink-0 relative">
                   <img 
                     src={src} 
                     alt={`Dashboard View ${index + 1}`} 
-                    className="w-full h-full object-cover object-top"
+                    // FIX: Changed object-cover/h-full to w-full/h-auto
+                    className="w-full h-auto block"
                   />
                 </div>
               ))}
@@ -158,7 +163,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Pagination Dots - MOVED BELOW THE BROWSER WINDOW */}
+        {/* Pagination Dots */}
         <div className="flex items-center justify-center gap-2 mt-8 z-50 relative">
           {dashboardImages.map((_, index) => (
             <button
@@ -318,7 +323,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="w-full lg:w-[40%] flex flex-col items-center lg:items-end justify-center relative pt-4">
-              <div className="relative p-8 rounded-3xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 shadow-lg dark:shadow-[0_0_50px_rgba(0,0,0,0.5)] backdrop-blur-sm group hover:border-teal-300 dark:hover:border-[#b3ffe2]/20 transition-colors w-full max-w-sm overflow-hidden">
+              <div className="relative p-8 rounded-3xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 shadow-lg dark:shadow-[0_0_50px_rgba(0,0,0,0.5)] backdrop-blur-sm group hover:border-teal-300 dark:hover:border-[#b3ffe2]/20 transition-colors w-full max-sm overflow-hidden">
                 <div className="absolute -right-10 -top-10 w-40 h-40 bg-teal-400 dark:bg-[#b3ffe2] opacity-10 blur-3xl group-hover:opacity-20 transition-opacity duration-500"></div>
                 <h4 className="text-slate-900 dark:text-white text-xl font-semibold mb-2">Ready to scale?</h4>
                 <p className="text-slate-600 dark:text-slate-400 text-sm mb-8 leading-relaxed">Get a personalized demo and see how SenticPulse AI can protect your supply chain.</p>
