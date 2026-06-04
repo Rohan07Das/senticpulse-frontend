@@ -379,16 +379,16 @@ export default function HomePage() {
             onClick={closeModal}
           />
           
-          {/* Main Modal Container */}
-          <div className="relative w-full max-w-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden shadow-2xl z-10 transition-all transform animate-in zoom-in-95 duration-200 p-8 flex flex-col">
+          {/* Main Modal Container - Swapped dark:bg-slate-950 for dark:bg-[#0a0f1a] to provide layout contrast */}
+          <div className="relative w-full max-w-lg bg-white dark:bg-[#0a0f1a] border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden shadow-2xl z-10 transition-all transform animate-in zoom-in-95 duration-200 p-8 flex flex-col">
             
             {/* Corner Decorative Accent Gradient */}
             <div className="absolute -right-12 -top-12 w-32 h-32 bg-teal-400 dark:bg-[#b3ffe2] opacity-10 blur-2xl pointer-events-none"></div>
             
-            {/* Exit Cross Button */}
+            {/* Exit Cross Button - Positioned exactly to right top corner */}
             <button 
               onClick={closeModal}
-              className="absolute top-4 right-8 p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-lg transition-colors cursor-pointer"
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-white rounded-lg transition-colors cursor-pointer z-50"
             >
               <X className="w-5 h-5" />
             </button>
@@ -397,17 +397,17 @@ export default function HomePage() {
               <>
                 {/* Heading Block */}
                 <div className="mb-6">
-                  <div className="inline-flex items-center gap-3 px-1.5 py-1.5 rounded-full bg-teal-50 dark:bg-[#ffffff]/10 border border-teal-200 dark:border-[#ffffff]/20 mb-3">
-                    <span className="text-teal-700 dark:text-[#ffffff] text-[9px] font-bold uppercase tracking-widest">Enterprise Inquiry</span>
+                  <div className="inline-flex items-center gap-3 px-2.5 py-1 rounded-full bg-teal-50 dark:bg-[#b3ffe2]/10 border border-teal-200 dark:border-[#b3ffe2]/20 mb-3">
+                    <span className="text-teal-700 dark:text-[#b3ffe2] text-[9px] font-bold uppercase tracking-widest">Enterprise Inquiry</span>
                   </div>
-                  <h3 className="text-2xl font-bold text-slate-900 dark:text-black tracking-tight">Connect with SenticPulse AI</h3>
-                  <p className="text-slate-500 dark:text-black text-xs mt-1">Let us know how we can align our intelligence engines with your logistics infrastructure.</p>
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Connect with SenticPulse AI</h3>
+                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Let us know how we can align our intelligence engines with your logistics infrastructure.</p>
                 </div>
 
-                {/* Question form field logic */}
+                {/* Form Logic */}
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-black mb-1.5">What is your name?</label>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">What is your name?</label>
                     <input 
                       type="text"
                       name="name"
@@ -415,13 +415,13 @@ export default function HomePage() {
                       value={formData.name}
                       onChange={handleInputChange}
                       placeholder="Jane Doe"
-                      className="w-full px-4 py-3 bg-slate-50 dark:bg-black/[0.02] border border-slate-200 dark:border-black/5 rounded-xl text-sm text-slate-900 dark:text-black placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-teal-500 dark:focus:border-[#b3ffe2]/50 transition-colors font-medium"
+                      className="w-full px-4 py-3 bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-teal-500 dark:focus:border-[#b3ffe2]/50 transition-colors font-medium"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-black mb-1.5">Work Email</label>
+                      <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">Work Email</label>
                       <input 
                         type="email"
                         name="email"
@@ -429,11 +429,11 @@ export default function HomePage() {
                         value={formData.email}
                         onChange={handleInputChange}
                         placeholder="jane@company.com"
-                        className="w-full px-4 py-3 bg-slate-50 dark:bg-black/[0.02] border border-slate-200 dark:border-black/5 rounded-xl text-sm text-slate-900 dark:text-black placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-teal-500 dark:focus:border-[#b3ffe2]/50 transition-colors font-medium"
+                        className="w-full px-4 py-3 bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-teal-500 dark:focus:border-[#b3ffe2]/50 transition-colors font-medium"
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-black mb-1.5">Company / Agency Name</label>
+                      <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">Company / Agency Name</label>
                       <input 
                         type="text"
                         name="company"
@@ -441,13 +441,13 @@ export default function HomePage() {
                         value={formData.company}
                         onChange={handleInputChange}
                         placeholder="NexusLogistics"
-                        className="w-full px-4 py-3 bg-slate-50 dark:bg-black/[0.02] border border-slate-200 dark:border-black/5 rounded-xl text-sm text-slate-900 dark:text-black placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-teal-500 dark:focus:border-[#b3ffe2]/50 transition-colors font-medium"
+                        className="w-full px-4 py-3 bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-teal-500 dark:focus:border-[#b3ffe2]/50 transition-colors font-medium"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-black mb-1.5">Why do you want to integrate SenticPulse AI?</label>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">Why do you want to integrate SenticPulse AI?</label>
                     <textarea 
                       name="reason"
                       required
@@ -455,13 +455,13 @@ export default function HomePage() {
                       value={formData.reason}
                       onChange={handleInputChange}
                       placeholder="Tell us about your logistics parameters, supply routes, or specific risk monitoring goals..."
-                      className="w-full px-4 py-3 bg-slate-50 dark:bg-black/[0.02] border border-slate-200 dark:border-black/5 rounded-xl text-sm text-slate-900 dark:text-black placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-teal-500 dark:focus:border-[#b3ffe2]/50 transition-colors resize-none font-medium leading-relaxed"
+                      className="w-full px-4 py-3 bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-teal-500 dark:focus:border-[#b3ffe2]/50 transition-colors resize-none font-medium leading-relaxed"
                     />
                   </div>
 
                   <button 
                     type="submit"
-                    className="w-full mt-2 py-3.5 px-6 bg-slate-900 dark:bg-black/20 hover:bg-slate-800 dark:hover:bg-slate-900 text-white dark:text-white rounded-xl font-bold text-xs tracking-widest uppercase transition-all shadow-md active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
+                    className="w-full mt-2 py-3.5 px-6 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white text-white dark:text-slate-900 rounded-xl font-bold text-xs tracking-widest uppercase transition-all shadow-md active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
                   >
                     Submit Request <ArrowRight className="w-3.5 h-3.5" />
                   </button>
@@ -471,21 +471,21 @@ export default function HomePage() {
               /* --- HIGHLY PROFESSIONAL SUCCESS VIEW STATE --- */
               <div className="flex flex-col items-center text-center py-6 animate-in fade-in zoom-in-95 duration-300">
                 <div className="h-14 w-14 rounded-full bg-teal-50 dark:bg-[#b3ffe2]/10 border border-teal-200 dark:border-[#b3ffe2]/30 flex items-center justify-center mb-6 shadow-md shadow-teal-500/5">
-                  <ShieldCheck className="text-teal-600 dark:text-[#ffffff] w-8 h-8" />
+                  <ShieldCheck className="text-teal-600 dark:text-[#b3ffe2] w-8 h-8" />
                 </div>
                 
-                <h3 className="text-2xl font-bold text-slate-900 dark:text-black tracking-tight">Transmission Successful</h3>
-                <p className="text-slate-500 dark:text-slate-600 text-sm max-w-sm mt-2 leading-relaxed">
-                  Thank you, <span className="font-semibold text-slate-800 dark:text-black">{formData.name}</span>. Your operational profile for <span className="font-semibold text-slate-800 dark:text-=black">{formData.company}</span> has been processed into our queue.
+                <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Transmission Successful</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm mt-2 leading-relaxed">
+                  Thank you, <span className="font-semibold text-slate-800 dark:text-[#b3ffe2]">{formData.name}</span>. Your operational profile for <span className="font-semibold text-slate-800 dark:text-[#b3ffe2]">{formData.company}</span> has been processed into our queue.
                 </p>
                 
-                <div className="w-full bg-slate-50 dark:bg-black/[0.01] border border-slate-100 dark:border-black/5 rounded-xl p-4 my-8 text-[11px] font-mono tracking-wide text-slate-800 dark:text-black uppercase">
+                <div className="w-full bg-slate-50 dark:bg-white/[0.02] border border-slate-100 dark:border-white/5 rounded-xl p-4 my-8 text-[11px] font-mono tracking-wide text-slate-500 dark:text-slate-400 uppercase">
                   Status: Route Analysis Initiated
                 </div>
 
                 <button 
                   onClick={closeModal}
-                  className="px-6 py-3.5 border border-slate-200 dark:border-black/5 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-black/60 hover:bg-slate-50 dark:hover:bg-black hover:text-black dark:hover:text-black transition-all cursor-pointer"
+                  className="px-6 py-3.5 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-black dark:hover:text-white transition-all cursor-pointer"
                 >
                   Return to Dashboard
                 </button>
