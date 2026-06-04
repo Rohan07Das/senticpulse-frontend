@@ -4,12 +4,40 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { 
   Zap, Building2, BrainCircuit, Star, BarChart3, 
-  Target, ShieldCheck, Check, Sparkles, ArrowRight 
+  Target, ShieldCheck, Check, Sparkles, ArrowRight, X 
 } from 'lucide-react';
 import PlanCard from '@/components/PlanCard';
 
 export default function PricingPage() {
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annually'>('annually');
+
+  // --- MODAL & FORM STATE ---
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    company: '',
+    reason: ''
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitted(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setTimeout(() => {
+      setIsSubmitted(false);
+      setFormData({ name: '', email: '', company: '', reason: '' });
+    }, 300);
+  };
 
   return (
     <div className="relative flex flex-col w-full min-h-screen bg-transparent font-sans overflow-x-clip transition-colors duration-500 pt-2">
@@ -58,7 +86,7 @@ export default function PricingPage() {
                   onClick={() => setBillingPeriod('annually')}
                   className={`relative z-20 flex-1 py-2.5 text-[10px] font-bold uppercase tracking-[0.15em] transition-colors duration-500 ${billingPeriod === 'annually' ? 'text-white dark:text-slate-900' : 'text-slate-500 dark:text-slate-400'}`}
               >
-                  Annually <span className={`ml-1 text-[8px] opacity-80 ${billingPeriod === 'annually' ? 'text-white/80 dark:text-slate-900/70' : 'text-teal-600 dark:text-[#b3ffe2]'}`}>(Save 20%)</span>
+                  Annually <span className={`ml-1 text-[8px] opacity-80 ${billingPeriod === 'annually' ? 'text-white/80 dark:text-slate-900/70' : 'text-teal-600 dark:text-[#b3ffe2]'}`>(Save 20%)</span>
               </button>
               
               <div 
@@ -141,7 +169,7 @@ export default function PricingPage() {
           {/* FULL-WIDTH ADAPTABLE FOOTER WRAPPER */}
           <div className="relative w-full bg-white dark:bg-black transition-colors duration-500 mt-[-1px]">
             
-            {/* THE NEURAL FADE: Blends the main grid into the solid footer bg */}
+            {/* THE NEURAL FADE */}
             <div className="absolute top-0 left-0 right-0 h-40 -translate-y-full bg-gradient-to-t from-white dark:from-black to-transparent pointer-events-none" />
 
             <footer className="w-full pb-12 px-6 relative overflow-hidden z-10">
@@ -166,8 +194,8 @@ export default function PricingPage() {
                   
                   <div className="grid grid-cols-3 gap-8 text-left max-w-lg mx-auto lg:mx-0 w-full">
                     <div><h4 className="text-slate-900 dark:text-white font-semibold text-sm mb-6 tracking-wide">Product</h4><ul className="space-y-4"><li><Link href="/" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Features</Link></li><li><Link href="/pricing" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Pricing</Link></li><li><Link href="/pricing" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">API</Link></li></ul></div>
-        <div><h4 className="text-slate-900 dark:text-white font-semibold text-sm mb-6 tracking-wide">Resources</h4><ul className="space-y-4"><li><Link href="#" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Documentation</Link></li><li><Link href="/blogs" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Blogs</Link></li><li><Link href="/blogs" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Case Studies</Link></li></ul></div>
-        <div><h4 className="text-slate-900 dark:text-white font-semibold text-sm mb-6 tracking-wide">Company</h4><ul className="space-y-4"><li><Link href="/" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">About</Link></li><li><Link href="/careers" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Careers</Link></li><li><Link href="/contact" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Contact</Link></li></ul></div>
+                    <div><h4 className="text-slate-900 dark:text-white font-semibold text-sm mb-6 tracking-wide">Resources</h4><ul className="space-y-4"><li><Link href="#" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Documentation</Link></li><li><Link href="/blogs" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Blogs</Link></li><li><Link href="/blogs" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Case Studies</Link></li></ul></div>
+                    <div><h4 className="text-slate-900 dark:text-white font-semibold text-sm mb-6 tracking-wide">Company</h4><ul className="space-y-4"><li><Link href="/" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">About</Link></li><li><Link href="/careers" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Careers</Link></li><li><button onClick={() => setIsModalOpen(true)} className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors text-left bg-transparent border-none cursor-pointer p-0">Contact</button></li></ul></div>
                   </div>
                 </div>
 
@@ -176,14 +204,17 @@ export default function PricingPage() {
                     <div className="absolute -right-10 -top-10 w-40 h-40 bg-teal-400 dark:bg-[#b3ffe2] opacity-10 blur-3xl group-hover:opacity-20 transition-opacity duration-500"></div>
                     <h4 className="text-slate-900 dark:text-white text-xl font-semibold mb-2">Ready to scale?</h4>
                     <p className="text-slate-600 dark:text-slate-400 text-sm mb-8 leading-relaxed">Get a personalized demo and see how SenticPulse AI can protect your supply chain.</p>
-                    <Link href="/contact" className="relative group/btn cursor-pointer block w-full">
+                    <button 
+                      onClick={() => setIsModalOpen(true)} 
+                      className="relative group/btn cursor-pointer block w-full bg-transparent border-none p-0 text-left"
+                    >
                       <div className="relative bg-slate-900 dark:bg-black border border-slate-700 dark:border-[#b3ffe2]/30 px-6 py-4 rounded-xl flex items-center justify-between transition-all duration-300 hover:bg-slate-800 dark:hover:bg-[#b3ffe2]/10 hover:border-teal-500 dark:hover:border-[#b3ffe2]/80 active:scale-95 shadow-md">
                         <span className="text-xs font-black text-white uppercase tracking-widest group-hover/btn:text-teal-400 dark:group-hover/btn:text-[#b3ffe2] transition-colors">Contact Enterprise Sales</span>
                         <div className="h-8 w-8 rounded-full bg-slate-800 dark:bg-[#b3ffe2]/10 flex items-center justify-center group-hover/btn:bg-slate-700 dark:group-hover/btn:bg-[#b3ffe2]/20 transition-colors">
                           <ArrowRight className="w-4 h-4 text-teal-400 dark:text-[#b3ffe2] group-hover/btn:translate-x-1 transition-transform" />
                         </div>
                       </div>
-                    </Link>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -200,6 +231,133 @@ export default function PricingPage() {
           </div>
         </div>
       </div>
+
+      {/* ========================================= */}
+      {/* PROFESSIONAL CONTACT MODAL INTERFACE        */}
+      {/* ========================================= */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          {/* Backdrop blur layer */}
+          <div 
+            className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
+            onClick={closeModal}
+          />
+          
+          {/* Main Modal Container */}
+          <div className="relative w-full max-w-lg bg-white dark:bg-[#0a0f1a] border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden shadow-2xl z-10 transition-all transform animate-in zoom-in-95 duration-200 p-8 flex flex-col">
+            
+            {/* Corner Decorative Accent Gradient */}
+            <div className="absolute -right-12 -top-12 w-32 h-32 bg-teal-400 dark:bg-[#b3ffe2] opacity-10 blur-2xl pointer-events-none"></div>
+            
+            {/* Exit Cross Button */}
+            <button 
+              onClick={closeModal}
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-white rounded-lg transition-colors cursor-pointer z-50"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {!isSubmitted ? (
+              <>
+                {/* Heading Block */}
+                <div className="mb-6">
+                  <div className="inline-flex items-center gap-3 px-2.5 py-1 rounded-full bg-teal-50 dark:bg-[#b3ffe2]/10 border border-teal-200 dark:border-[#b3ffe2]/20 mb-3">
+                    <span className="text-teal-700 dark:text-[#b3ffe2] text-[9px] font-bold uppercase tracking-widest">Enterprise Inquiry</span>
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Connect with SenticPulse AI</h3>
+                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Let us know how we can align our intelligence engines with your logistics infrastructure.</p>
+                </div>
+
+                {/* Form Logic */}
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">What is your name?</label>
+                    <input 
+                      type="text"
+                      name="name"
+                      required
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      placeholder="Jane Doe"
+                      className="w-full px-4 py-3 bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-teal-500 dark:focus:border-[#b3ffe2]/50 transition-colors font-medium"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">Work Email</label>
+                      <input 
+                        type="email"
+                        name="email"
+                        required
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        placeholder="jane@company.com"
+                        className="w-full px-4 py-3 bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-teal-500 dark:focus:border-[#b3ffe2]/50 transition-colors font-medium"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">Company / Agency Name</label>
+                      <input 
+                        type="text"
+                        name="company"
+                        required
+                        value={formData.company}
+                        onChange={handleInputChange}
+                        placeholder="NexusLogistics"
+                        className="w-full px-4 py-3 bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-teal-500 dark:focus:border-[#b3ffe2]/50 transition-colors font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">Why do you want to integrate SenticPulse AI?</label>
+                    <textarea 
+                      name="reason"
+                      required
+                      rows={3}
+                      value={formData.reason}
+                      onChange={handleInputChange}
+                      placeholder="Tell us about your logistics parameters, supply routes, or specific risk monitoring goals..."
+                      className="w-full px-4 py-3 bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-teal-500 dark:focus:border-[#b3ffe2]/50 transition-colors resize-none font-medium leading-relaxed"
+                    />
+                  </div>
+
+                  <button 
+                    type="submit"
+                    className="w-full mt-2 py-3.5 px-6 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white text-white dark:text-slate-900 rounded-xl font-bold text-xs tracking-widest uppercase transition-all shadow-md active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    Submit Request <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </form>
+              </>
+            ) : (
+              /* --- HIGHLY PROFESSIONAL SUCCESS VIEW STATE --- */
+              <div className="flex flex-col items-center text-center py-6 animate-in fade-in zoom-in-95 duration-300">
+                <div className="h-14 w-14 rounded-full bg-teal-50 dark:bg-[#b3ffe2]/10 border border-teal-200 dark:border-[#b3ffe2]/30 flex items-center justify-center mb-6 shadow-md shadow-teal-500/5">
+                  <ShieldCheck className="text-teal-600 dark:text-[#b3ffe2] w-8 h-8" />
+                </div>
+                
+                <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Transmission Successful</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm mt-2 leading-relaxed">
+                  Thank you, <span className="font-semibold text-slate-800 dark:text-[#b3ffe2]">{formData.name}</span>. Your operational profile for <span className="font-semibold text-slate-800 dark:text-[#b3ffe2]">{formData.company}</span> has been processed into our queue.
+                </p>
+                
+                <div className="w-full bg-slate-50 dark:bg-white/[0.02] border border-slate-100 dark:border-white/5 rounded-xl p-4 my-8 text-[11px] font-mono tracking-wide text-slate-500 dark:text-slate-400 uppercase">
+                  Status: Route Analysis Initiated
+                </div>
+
+                <button 
+                  onClick={closeModal}
+                  className="px-6 py-3.5 border border-slate-200 dark:border-white/10 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-black dark:hover:text-white transition-all cursor-pointer"
+                >
+                  Return to Dashboard
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
