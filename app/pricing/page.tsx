@@ -18,12 +18,18 @@ export default function PricingPage() {
     name: '',
     email: '',
     company: '',
+    tierSelection: 'SME Nexus Enterprise',
     reason: ''
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleTierTrigger = (tierName: string) => {
+    setFormData(prev => ({ ...prev, tierSelection: tierName }));
+    setIsModalOpen(true);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -35,7 +41,7 @@ export default function PricingPage() {
     setIsModalOpen(false);
     setTimeout(() => {
       setIsSubmitted(false);
-      setFormData({ name: '', email: '', company: '', reason: '' });
+      setFormData({ name: '', email: '', company: '', tierSelection: 'SME Nexus Enterprise', reason: '' });
     }, 300);
   };
 
@@ -98,82 +104,83 @@ export default function PricingPage() {
 
           {/* --- PRICING MATRIX --- */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full items-stretch">
-              <PlanCard 
-                  name="Pulse Starter"
-                  icon={Zap}
-                  price={billingPeriod === 'annually' ? 79 : 99}
-                  billingPeriod={billingPeriod}
-                  description="Dedicated Trace Path"
-                  features={[
-                      { name: '1 Dedicated Trace Path', active: true },
-                      { name: '500 Neural Checkpoints/Day', active: true },
-                      { name: 'Live Sentiment Heatmaps', active: true },
-                      { name: 'Basic Bot Detection', active: true },
-                      { name: 'Shipper Scoring API', active: false },
-                      { name: 'Disruption Prediction', active: false },
-                      { name: 'Neural Sync Architecture', active: false },
-                  ]}
-                  ctaText="Activate Pulse"
-                  ctaLink="/register"
-                  theme="light"
-              />
+              <div onClick={() => handleTierTrigger('Pulse Starter')} className="h-full flex flex-col cursor-pointer">
+                <PlanCard 
+                    name="Pulse Starter"
+                    icon={Zap}
+                    price={billingPeriod === 'annually' ? 79 : 99}
+                    billingPeriod={billingPeriod}
+                    description="Dedicated Trace Path"
+                    features={[
+                        { name: '1 Dedicated Trace Path', active: true },
+                        { name: '500 Neural Checkpoints/Day', active: true },
+                        { name: 'Live Sentiment Heatmaps', active: true },
+                        { name: 'Basic Bot Detection', active: true },
+                        { name: 'Shipper Scoring API', active: false },
+                        { name: 'Disruption Prediction', active: false },
+                        { name: 'Neural Sync Architecture', active: false },
+                    ]}
+                    ctaText="Activate Pulse"
+                    ctaLink="#"
+                    theme="light"
+                />
+              </div>
 
-              <PlanCard 
-                  name="Sentic Pro"
-                  icon={BrainCircuit}
-                  price={billingPeriod === 'annually' ? 249 : 299}
-                  billingPeriod={billingPeriod}
-                  description="Advanced logistics intelligence"
-                  features={[
-                      { name: '25 Dedicated Trace Paths', active: true },
-                      { name: '10,000 Neural Checkpoints/Day', active: true },
-                      { name: 'Live Sentiment Heatmaps', active: true },
-                      { name: 'Advanced Bot-Farm Defenses', active: true },
-                      { name: 'Neural Sync Architecture', active: true },
-                      { name: 'Full Shipper Scoring API', active: true },
-                      { name: 'Disruption Prediction', active: false },
-                  ]}
-                  ctaText="Access Pro Neural Net"
-                  ctaLink="/register"
-                  theme="pro"
-                  popular={true}
-              />
+              <div onClick={() => handleTierTrigger('Sentic Pro')} className="h-full flex flex-col cursor-pointer">
+                <PlanCard 
+                    name="Sentic Pro"
+                    icon={BrainCircuit}
+                    price={billingPeriod === 'annually' ? 249 : 299}
+                    billingPeriod={billingPeriod}
+                    description="Advanced logistics intelligence"
+                    features={[
+                        { name: '25 Dedicated Trace Paths', active: true },
+                        { name: '10,000 Neural Checkpoints/Day', active: true },
+                        { name: 'Live Sentiment Heatmaps', active: true },
+                        { name: 'Advanced Bot-Farm Defenses', active: true },
+                        { name: 'Neural Sync Architecture', active: true },
+                        { name: 'Full Shipper Scoring API', active: true },
+                        { name: 'Disruption Prediction', active: false },
+                    ]}
+                    ctaText="Access Pro Neural Net"
+                    ctaLink="#"
+                    theme="pro"
+                    popular={true}
+                />
+              </div>
 
-              <PlanCard 
-                  name="SME Nexus"
-                  icon={Building2}
-                  price="Enterprise"
-                  billingPeriod={billingPeriod}
-                  description="Comprehensive scaled monitoring"
-                  features={[
-                      { name: 'Unlimited Trace Paths', active: true },
-                      { name: 'Max Neural Checkpoints/Day', active: true },
-                      { name: 'Live Sentiment Heatmaps', active: true },
-                      { name: 'Bot-Farm Disruption Immunity', active: true },
-                      { name: 'Neural Sync Architecture', active: true },
-                      { name: 'Priority API Access', active: true },
-                      { name: 'AI Disruption Prediction', active: true },
-                  ]}
-                  ctaText="Nexus Sales"
-                  ctaLink="/contact"
-                  theme="nexus"
-              />
+              <div onClick={() => handleTierTrigger('SME Nexus Enterprise')} className="h-full flex flex-col cursor-pointer">
+                <PlanCard 
+                    name="SME Nexus"
+                    icon={Building2}
+                    price="Enterprise"
+                    billingPeriod={billingPeriod}
+                    description="Comprehensive scaled monitoring"
+                    features={[
+                        { name: 'Unlimited Trace Paths', active: true },
+                        { name: 'Max Neural Checkpoints/Day', active: true },
+                        { name: 'Live Sentiment Heatmaps', active: true },
+                        { name: 'Bot-Farm Disruption Immunity', active: true },
+                        { name: 'Neural Sync Architecture', active: true },
+                        { name: 'Priority API Access', active: true },
+                        { name: 'AI Disruption Prediction', active: true },
+                    ]}
+                    ctaText="Nexus Sales"
+                    ctaLink="#"
+                    theme="nexus"
+                />
+              </div>
           </div>
         </div>
 
         {/* --- ADAPTABLE FOOTER SYSTEM --- */}
         <div className="w-full mt-32 relative">
-          {/* NEURAL DIVIDER */}
           <div className="w-full max-w-[12200px] mx-auto h-[1px] bg-slate-200 dark:bg-[#b3ffe2] dark:opacity-20 relative z-10" />
 
-          {/* FULL-WIDTH ADAPTABLE FOOTER WRAPPER */}
           <div className="relative w-full bg-white dark:bg-black transition-colors duration-500 mt-[-1px]">
-            
-            {/* THE NEURAL FADE */}
             <div className="absolute top-0 left-0 right-0 h-40 -translate-y-full bg-gradient-to-t from-white dark:from-black to-transparent pointer-events-none" />
 
             <footer className="w-full pb-12 px-6 relative overflow-hidden z-10">
-              {/* DOTTED MASK OVERLAY */}
               <div 
                 className="absolute top-0 bottom-0 right-0 w-1/2 pointer-events-none opacity-100 dark:opacity-30 z-0 text-slate-300 dark:text-[#b3ffe2]" 
                 style={{ 
@@ -195,7 +202,7 @@ export default function PricingPage() {
                   <div className="grid grid-cols-3 gap-8 text-left max-w-lg mx-auto lg:mx-0 w-full">
                     <div><h4 className="text-slate-900 dark:text-white font-semibold text-sm mb-6 tracking-wide">Product</h4><ul className="space-y-4"><li><Link href="/" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Features</Link></li><li><Link href="/pricing" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Pricing</Link></li><li><Link href="/pricing" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">API</Link></li></ul></div>
                     <div><h4 className="text-slate-900 dark:text-white font-semibold text-sm mb-6 tracking-wide">Resources</h4><ul className="space-y-4"><li><Link href="#" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Documentation</Link></li><li><Link href="/blogs" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Blogs</Link></li><li><Link href="/blogs" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Case Studies</Link></li></ul></div>
-                    <div><h4 className="text-slate-900 dark:text-white font-semibold text-sm mb-6 tracking-wide">Company</h4><ul className="space-y-4"><li><Link href="/" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">About</Link></li><li><Link href="/careers" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Careers</Link></li><li><button onClick={() => setIsModalOpen(true)} className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors text-left bg-transparent border-none cursor-pointer p-0">Contact</button></li></ul></div>
+                    <div><h4 className="text-slate-900 dark:text-white font-semibold text-sm mb-6 tracking-wide">Company</h4><ul className="space-y-4"><li><Link href="/" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">About</Link></li><li><Link href="/careers" className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors">Careers</Link></li><li><button onClick={() => handleTierTrigger('General Inquiry')} className="text-slate-500 dark:text-slate-400 text-xs hover:text-slate-700 dark:hover:text-[#b3ffe2] transition-colors text-left bg-transparent border-none cursor-pointer p-0">Contact</button></li></ul></div>
                   </div>
                 </div>
 
@@ -205,7 +212,7 @@ export default function PricingPage() {
                     <h4 className="text-slate-900 dark:text-white text-xl font-semibold mb-2">Ready to scale?</h4>
                     <p className="text-slate-600 dark:text-slate-400 text-sm mb-8 leading-relaxed">Get a personalized demo and see how SenticPulse AI can protect your supply chain.</p>
                     <button 
-                      onClick={() => setIsModalOpen(true)} 
+                      onClick={() => handleTierTrigger('Ready To Scale Demo')} 
                       className="relative group/btn cursor-pointer block w-full bg-transparent border-none p-0 text-left"
                     >
                       <div className="relative bg-slate-900 dark:bg-black border border-slate-700 dark:border-[#b3ffe2]/30 px-6 py-4 rounded-xl flex items-center justify-between transition-all duration-300 hover:bg-slate-800 dark:hover:bg-[#b3ffe2]/10 hover:border-teal-500 dark:hover:border-[#b3ffe2]/80 active:scale-95 shadow-md">
@@ -237,19 +244,15 @@ export default function PricingPage() {
       {/* ========================================= */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
-          {/* Backdrop blur layer */}
           <div 
             className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
             onClick={closeModal}
           />
           
-          {/* Main Modal Container */}
           <div className="relative w-full max-w-lg bg-white dark:bg-[#0a0f1a] border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden shadow-2xl z-10 transition-all transform animate-in zoom-in-95 duration-200 p-8 flex flex-col">
             
-            {/* Corner Decorative Accent Gradient */}
             <div className="absolute -right-12 -top-12 w-32 h-32 bg-teal-400 dark:bg-[#b3ffe2] opacity-10 blur-2xl pointer-events-none"></div>
             
-            {/* Exit Cross Button */}
             <button 
               onClick={closeModal}
               className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-white rounded-lg transition-colors cursor-pointer z-50"
@@ -259,17 +262,31 @@ export default function PricingPage() {
 
             {!isSubmitted ? (
               <>
-                {/* Heading Block */}
                 <div className="mb-6">
                   <div className="inline-flex items-center gap-3 px-2.5 py-1 rounded-full bg-teal-50 dark:bg-[#b3ffe2]/10 border border-teal-200 dark:border-[#b3ffe2]/20 mb-3">
-                    <span className="text-teal-700 dark:text-[#b3ffe2] text-[9px] font-bold uppercase tracking-widest">Enterprise Inquiry</span>
+                    <span className="text-teal-700 dark:text-[#b3ffe2] text-[9px] font-bold uppercase tracking-widest">Neural Provisioning</span>
                   </div>
                   <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Connect with SenticPulse AI</h3>
-                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Let us know how we can align our intelligence engines with your logistics infrastructure.</p>
+                  <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Configure your deployment access node parameters.</p>
                 </div>
 
-                {/* Form Logic */}
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">Selected Module Architecture</label>
+                    <select 
+                      name="tierSelection"
+                      value={formData.tierSelection}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-teal-500 dark:focus:border-[#b3ffe2]/50 transition-colors font-medium"
+                    >
+                      <option value="Pulse Starter" className="dark:bg-[#0a0f1a]">Pulse Starter Access</option>
+                      <option value="Sentic Pro" className="dark:bg-[#0a0f1a]">Sentic Pro Architecture</option>
+                      <option value="SME Nexus Enterprise" className="dark:bg-[#0a0f1a]">SME Nexus Enterprise</option>
+                      <option value="Ready To Scale Demo" className="dark:bg-[#0a0f1a]">Custom Cloud Demo</option>
+                      <option value="General Inquiry" className="dark:bg-[#0a0f1a]">General Core Inquiry</option>
+                    </select>
+                  </div>
+
                   <div>
                     <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">What is your name?</label>
                     <input 
@@ -340,7 +357,7 @@ export default function PricingPage() {
                 
                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Transmission Successful</h3>
                 <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm mt-2 leading-relaxed">
-                  Thank you, <span className="font-semibold text-slate-800 dark:text-[#b3ffe2]">{formData.name}</span>. Your operational profile for <span className="font-semibold text-slate-800 dark:text-[#b3ffe2]">{formData.company}</span> has been processed into our queue.
+                  Thank you, <span className="font-semibold text-slate-800 dark:text-[#b3ffe2]">{formData.name}</span>. Your operational request for the <span className="font-bold text-teal-600 dark:text-[#b3ffe2]">{formData.tierSelection}</span> module has been added to our queue.
                 </p>
                 
                 <div className="w-full bg-slate-50 dark:bg-white/[0.02] border border-slate-100 dark:border-white/5 rounded-xl p-4 my-8 text-[11px] font-mono tracking-wide text-slate-500 dark:text-slate-400 uppercase">
